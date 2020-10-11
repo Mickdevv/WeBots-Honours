@@ -1,0 +1,145 @@
+#VRML_SIM R2020b utf8
+WorldInfo {
+  basicTimeStep 16
+  FPS 165
+  coordinateSystem "NUE"
+}
+Viewpoint {
+  orientation -0.10617852039456455 0.9605171738287249 0.25716314002379864 2.362683716889825
+  position 1.097694892142705 0.9897029116894879 -1.1855841827021814
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+Floor {
+  size 1 1
+}
+Solid {
+  translation 0 0.025 0.5
+  children [
+    Shape {
+      appearance DEF WallAppearance PBRAppearance {
+        baseColor 0 0 1
+        roughness 0.5
+        metalness 0
+      }
+      geometry DEF Wall1 Box {
+        size 1 0.05 0.01
+      }
+    }
+  ]
+  name "Wall1"
+  boundingObject USE Wall1
+}
+Solid {
+  translation 0 0.025 -0.5
+  children [
+    Shape {
+      appearance USE WallAppearance
+      geometry DEF Wall1 Box {
+        size 1 0.05 0.01
+      }
+    }
+  ]
+  name "Wall2"
+  boundingObject USE Wall1
+}
+Solid {
+  translation 0.5 0.025 0
+  rotation 0 1 0 1.5707996938995747
+  children [
+    Shape {
+      appearance USE WallAppearance
+      geometry DEF Wall1 Box {
+        size 1 0.05 0.01
+      }
+    }
+  ]
+  name "Wall3"
+  boundingObject USE Wall1
+}
+Solid {
+  translation -0.5 0.025 0
+  rotation 0 1 0 1.5707996938995747
+  children [
+    Shape {
+      appearance USE WallAppearance
+      geometry DEF Wall1 Box {
+        size 1 0.05 0.01
+      }
+    }
+  ]
+  name "Wall4"
+  boundingObject USE Wall1
+}
+WoodenBox {
+  translation 0 0.05 0.29
+  size 0.1 0.1 0.1
+  mass 0.1
+}
+E-puck {
+  translation 0.21 0 0
+  rotation 0 1 0 1.5708
+  controller "epuck_avoid_collision"
+}
+WoodenBox {
+  translation 0.3 0.05 0.3
+  name "wooden box(1)"
+  size 0.1 0.1 0.1
+  mass 0.1
+}
+WoodenBox {
+  translation 0.35 0.05 -0.3
+  name "wooden box(2)"
+  size 0.1 0.1 0.1
+  mass 0.1
+}
+Solid {
+  translation 0 0.1 -0.06
+  children [
+    Shape {
+      appearance DEF SphereAppearance PBRAppearance {
+        baseColorMap ImageTexture {
+          url [
+            "textures/texture_grid.png"
+          ]
+        }
+        roughness 1
+        metalness 0
+      }
+      geometry DEF BALL_GEOMETRY Sphere {
+        radius 0.05
+        subdivision 5
+      }
+    }
+  ]
+  boundingObject USE BALL_GEOMETRY
+  physics Physics {
+  }
+}
+Solid {
+  translation 0 0.1 0.05
+  children [
+    Shape {
+      appearance DEF SphereAppearance PBRAppearance {
+        baseColor 0 1 1
+        baseColorMap ImageTexture {
+          url [
+            "textures/texture_grid.png"
+          ]
+        }
+        roughness 1
+        metalness 0
+      }
+      geometry DEF BALL_GEOMETRY Sphere {
+        radius 0.05
+        subdivision 5
+      }
+    }
+  ]
+  name "solid(1)"
+  boundingObject USE BALL_GEOMETRY
+  physics Physics {
+  }
+}
