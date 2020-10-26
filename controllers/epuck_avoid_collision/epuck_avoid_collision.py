@@ -84,7 +84,7 @@ while robot.getTime() > -1:
     #red = camera.imageGetRed(image, camera.getWidth(), 0, 0)
     #print(red)
     print(type(image))
-    print(len(image))
+    print(image)
     print("--------------------------")
     
     #for x in range(0,camera.getWidth()):
