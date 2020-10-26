@@ -5,18 +5,31 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation -0.10617852039456455 0.9605171738287249 0.25716314002379864 2.362683716889825
-  position 1.097694892142705 0.9897029116894879 -1.1855841827021814
+  orientation 0.9430922338351927 0.3227169098137782 0.08019248468523685 5.700542789698053
+  position -0.452884708202269 1.347620029005078 2.392592071698808
 }
 TexturedBackground {
 }
 TexturedBackgroundLight {
 }
 Floor {
-  size 1 1
+  size 2 2
+}
+WoodenBox {
+  translation -0.19 0.05 0.06
+  name "wooden box(6)"
+  size 0.1 0.1 0.1
+  mass 0.1
+}
+WoodenBox {
+  translation -0.64 0.05 0.43
+  name "wooden box(3)"
+  size 0.1 0.1 0.1
+  mass 0.1
 }
 Solid {
-  translation 0 0.025 0.5
+  translation 0 0.025 1
+  scale 2 2 2
   children [
     Shape {
       appearance DEF WallAppearance PBRAppearance {
@@ -33,7 +46,8 @@ Solid {
   boundingObject USE Wall1
 }
 Solid {
-  translation 0 0.025 -0.5
+  translation 0 0.025 -1
+  scale 2 2 2
   children [
     Shape {
       appearance USE WallAppearance
@@ -46,8 +60,9 @@ Solid {
   boundingObject USE Wall1
 }
 Solid {
-  translation 0.5 0.025 0
+  translation 1 0.025 -1.68353e-06
   rotation 0 1 0 1.5707996938995747
+  scale 2 2 2
   children [
     Shape {
       appearance USE WallAppearance
@@ -60,8 +75,9 @@ Solid {
   boundingObject USE Wall1
 }
 Solid {
-  translation -0.5 0.025 0
+  translation -1 0.025 1.68353e-06
   rotation 0 1 0 1.5707996938995747
+  scale 2 2 2
   children [
     Shape {
       appearance USE WallAppearance
@@ -74,7 +90,19 @@ Solid {
   boundingObject USE Wall1
 }
 WoodenBox {
-  translation 0 0.05 0.29
+  translation -0.56 0.05 -0.35
+  size 0.1 0.1 0.1
+  mass 0.1
+}
+WoodenBox {
+  translation 0.52 0.05 -0.27
+  name "wooden box(5)"
+  size 0.1 0.1 0.1
+  mass 0.1
+}
+WoodenBox {
+  translation 0.77 0.05 0.62
+  name "wooden box(4)"
   size 0.1 0.1 0.1
   mass 0.1
 }
@@ -82,64 +110,33 @@ E-puck {
   translation 0.21 0 0
   rotation 0 1 0 1.5708
   controller "epuck_avoid_collision"
+  supervisor TRUE
+  camera_width 1
+  camera_height 1
 }
 WoodenBox {
-  translation 0.3 0.05 0.3
+  translation 0.3 0.05 0.43
   name "wooden box(1)"
   size 0.1 0.1 0.1
   mass 0.1
 }
 WoodenBox {
-  translation 0.35 0.05 -0.3
+  translation -0.24 0.05 0.68
+  name "wooden box(7)"
+  size 0.1 0.1 0.1
+  mass 0.1
+}
+WoodenBox {
+  translation 0.01 0.05 -0.41
   name "wooden box(2)"
   size 0.1 0.1 0.1
   mass 0.1
 }
-Solid {
-  translation 0 0.1 -0.06
-  children [
-    Shape {
-      appearance DEF SphereAppearance PBRAppearance {
-        baseColorMap ImageTexture {
-          url [
-            "textures/texture_grid.png"
-          ]
-        }
-        roughness 1
-        metalness 0
-      }
-      geometry DEF BALL_GEOMETRY Sphere {
-        radius 0.05
-        subdivision 5
-      }
-    }
-  ]
-  boundingObject USE BALL_GEOMETRY
-  physics Physics {
-  }
-}
-Solid {
-  translation 0 0.1 0.05
-  children [
-    Shape {
-      appearance DEF SphereAppearance PBRAppearance {
-        baseColor 0 1 1
-        baseColorMap ImageTexture {
-          url [
-            "textures/texture_grid.png"
-          ]
-        }
-        roughness 1
-        metalness 0
-      }
-      geometry DEF BALL_GEOMETRY Sphere {
-        radius 0.05
-        subdivision 5
-      }
-    }
-  ]
-  name "solid(1)"
-  boundingObject USE BALL_GEOMETRY
-  physics Physics {
+SolidBox {
+  translation 0 0.05 -0.75
+  size 0.1 0.1 0.1
+  appearance PBRAppearance {
+    baseColor 0 0 1
+    roughness 1
   }
 }
