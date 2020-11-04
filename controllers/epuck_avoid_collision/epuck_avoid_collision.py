@@ -23,7 +23,13 @@ ps = []
 psNames = ['ps0', 'ps1', 'ps2', 'ps3',
             'ps4', 'ps5', 'ps6', 'ps7']
 
-
+#r = open("EAToController", "r")
+#print(r.read())
+#r.close()
+f = open("ControllerToEA.csv", "w")
+f.write("Hello")
+f.close()
+#print(f.read())
 def Explore():
 # Process sensor data here.
     right_obstacle = psValues[0] > DT or psValues[1] > 83 or psValues[2] > 88
@@ -83,9 +89,9 @@ while robot.getTime() > -1:
     #print(gray)
     #red = camera.imageGetRed(image, camera.getWidth(), 0, 0)
     #print(red)
-    print(type(image))
-    print(image)
-    print("--------------------------")
+    #print(type(image))
+    #print(image)
+    #print("--------------------------")
     
     #for x in range(0,camera.getWidth()):
     #     for y in range(0,camera.getHeight()):
@@ -96,6 +102,8 @@ while robot.getTime() > -1:
     #          print ('r='+str(red)+' g='+str(green)+' b='+str(blue))
     if robot.step(TIME_STEP) == -1:
         quit()
+    #list = [1,2,3,4,5]
+    
     
     Explore()
     # Enter here functions to read sensor data, like:
@@ -104,6 +112,5 @@ while robot.getTime() > -1:
 # reset robot position and physics
 #supervisor.simulationReset()
 
-    
-
 # Enter here exit cleanup code.
+
