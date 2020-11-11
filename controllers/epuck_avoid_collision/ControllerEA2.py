@@ -62,10 +62,6 @@ with open('output.csv','wb') as result_file:
 def evalKnapsack(individual):
     weight = 0.0
     value = 0.0
-    individualStr = []
-    for i in range(len(individual)):
-        individualStr.append(str(individual[i]))
-    wr.writerow(individualStr)
     for item in range(NBR_ITEMS):
         if (individual[item]==1):
             weight += items[item][0]
