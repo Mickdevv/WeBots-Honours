@@ -73,6 +73,9 @@ while robot.step(TIME_STEP) != -1:
         
     if (state == 0):
         Explore()
+        
+    elif(state == 1):
+        print(state)
 
     # initialize motor speeds at 50% of MAX_SPEED.
     leftSpeed  = 0.5 * MAX_SPEED

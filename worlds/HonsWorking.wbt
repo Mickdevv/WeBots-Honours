@@ -1,0 +1,160 @@
+#VRML_SIM R2020b utf8
+WorldInfo {
+  basicTimeStep 16
+  FPS 165
+  coordinateSystem "NUE"
+}
+Viewpoint {
+  orientation 0.201364889300751 -0.960267896534616 -0.1932297809393791 4.74512053999774
+  position 3.2164701135558778 1.4223698642306137 0.7662135898959703
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+Floor {
+  size 2 2
+}
+WoodenBox {
+  translation -0.19391744017122517 0.04998038000000001 0.06361966437677595
+  rotation -7.809397330585782e-16 1 2.2290624578416276e-15 0.07032546406875297
+  name "wooden box(6)"
+  size 0.1 0.1 0.1
+  mass 0.1
+}
+WoodenBox {
+  translation -0.6399999999845568 0.04998038000000001 0.4300000000154429
+  rotation -0.7071067236936649 1.605651340648617e-07 0.7071068386794072 1.3461181436439143e-10
+  name "wooden box(3)"
+  size 0.1 0.1 0.1
+  mass 0.1
+}
+Solid {
+  translation 0 0.025 1
+  scale 2 2 2
+  children [
+    Shape {
+      appearance DEF WallAppearance PBRAppearance {
+        baseColor 0 0 1
+        roughness 0.5
+        metalness 0
+      }
+      geometry DEF Wall1 Box {
+        size 1 0.05 0.01
+      }
+    }
+  ]
+  name "Wall1"
+  boundingObject USE Wall1
+}
+Solid {
+  translation 0 0.025 -1
+  scale 2 2 2
+  children [
+    Shape {
+      appearance USE WallAppearance
+      geometry DEF Wall1 Box {
+        size 1 0.05 0.01
+      }
+    }
+  ]
+  name "Wall2"
+  boundingObject USE Wall1
+}
+Solid {
+  translation 1 0.025 -1.68353e-06
+  rotation 0 1 0 1.5707996938995747
+  scale 2 2 2
+  children [
+    Shape {
+      appearance USE WallAppearance
+      geometry DEF Wall1 Box {
+        size 1 0.05 0.01
+      }
+    }
+  ]
+  name "Wall3"
+  boundingObject USE Wall1
+}
+Solid {
+  translation -1 0.025 1.68353e-06
+  rotation 0 1 0 1.5707996938995747
+  scale 2 2 2
+  children [
+    Shape {
+      appearance USE WallAppearance
+      geometry DEF Wall1 Box {
+        size 1 0.05 0.01
+      }
+    }
+  ]
+  name "Wall4"
+  boundingObject USE Wall1
+}
+WoodenBox {
+  translation -0.5599999999845569 0.04998038000000001 -0.349999999984557
+  rotation 0.7071065244788092 2.0195502413506428e-08 -0.7071070378941924 -1.3461188119704958e-10
+  size 0.1 0.1 0.1
+  mass 0.1
+}
+WoodenBox {
+  translation 0.5200000000154432 0.04998038000000001 -0.26999999998455704
+  rotation -0.7071071777801037 1.5603592808998717e-09 0.7071063845927688 1.3461180583517267e-10
+  name "wooden box(5)"
+  size 0.1 0.1 0.1
+  mass 0.1
+}
+WoodenBox {
+  translation 0.7700000000154432 0.04998038000000001 0.6200000000154432
+  rotation 0.7071067917268113 5.258510457611359e-08 -0.7071067706462816 -1.3461183886259061e-10
+  name "wooden box(4)"
+  size 0.1 0.1 0.1
+  mass 0.1
+}
+E-puck {
+  hidden position_0_0 774.296314106957
+  hidden position_0_1 747.3706262721129
+  hidden linearVelocity_0 -0.04862892930043627 -8.546303528602666e-09 0.03930990671481217
+  hidden angularVelocity_0 -0.0113176488506831 1.993517783236835e-05 -0.013990923563905047
+  hidden rotation_1 0.9999999999999999 0 0 4.818663983311753
+  hidden linearVelocity_1 -0.04855845032346019 1.5051056845292489e-07 0.039253051122634115
+  hidden angularVelocity_1 1.9626661811576684 8.135560743490104e-06 2.4279320397759947
+  hidden rotation_2 -1 0 0 5.954760024921668
+  hidden linearVelocity_2 -0.048559500232880054 -1.570196692223975e-07 0.03925358679678101
+  hidden angularVelocity_2 1.9626662181951195 8.054480686672554e-06 2.427932042521849
+  translation -0.789747725609417 -3.198419689229119e-05 0.029444798141198027
+  rotation 3.477812387985731e-05 0.9999999970808221 -6.803556463561435e-05 2.250621949122039
+  controller "epuck_avoid_collision"
+  supervisor TRUE
+  camera_width 1
+  camera_height 1
+}
+WoodenBox {
+  translation 0.30000000001544297 0.04998038000000001 0.430000000015443
+  rotation -0.7071067793120888 -1.5134257772689627e-08 0.7071067830610062 1.3461183363857343e-10
+  name "wooden box(1)"
+  size 0.1 0.1 0.1
+  mass 0.1
+}
+WoodenBox {
+  translation -0.23999999998455707 0.04998038000000001 0.6800000000154433
+  rotation 0.7071068782007335 -3.923909947588746e-09 -0.7071066841723483 -1.3461180067289643e-10
+  name "wooden box(7)"
+  size 0.1 0.1 0.1
+  mass 0.1
+}
+WoodenBox {
+  translation 0.010000000015442967 0.04998038000000001 -0.409999999984557
+  rotation 0.7071068966311519 9.095204560192264e-08 -0.7071066657419183 -1.3461177862866662e-10
+  name "wooden box(2)"
+  size 0.1 0.1 0.1
+  mass 0.1
+}
+SolidBox {
+  translation 0 0.05 -0.75
+  size 0.1 0.1 0.1
+  appearance PBRAppearance {
+    baseColor 0 0 0
+    roughness 1
+  }
+}
