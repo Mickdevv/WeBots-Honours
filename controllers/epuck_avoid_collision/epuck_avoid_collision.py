@@ -12,7 +12,7 @@ PrintStats = 1
 MAX_SPEED = 6.28
 
 ##Bigger the number, the closer it will get to obstacles
-DistanceValue = 77
+DistanceValue = 78
 # create the Robot instance.
 robot = Supervisor()
 camera = Camera("camera")
@@ -24,6 +24,7 @@ psNames = [
     'ps4', 'ps5', 'ps6', 'ps7'
 ]
 
+ArrivalDeclared = 0
 state = 0
 boxFound = False
 
@@ -43,8 +44,8 @@ rightMotor.setVelocity(0.0)
 # ----------------------------------------------------------
 def Explore():
     # initialize motor speeds at 50% of MAX_SPEED.
-    leftSpeed  = 0.5 * MAX_SPEED
-    rightSpeed = 0.5 * MAX_SPEED
+    leftSpeed  = 1 * MAX_SPEED
+    rightSpeed = 1 * MAX_SPEED
     # modify speeds according to obstacles
     if left_obstacle:
         # turn right
@@ -80,32 +81,53 @@ def BoxFound():
 def IsPixelBox(x):
     pixelIsBox = 1
     image = camera.getImageArray()
-    for p in range(3):
-        if image[x][0][p] > 8:
-            pixelIsBox = 0
+
+    if image[x][0][0] <180 or image[x][0][1] > 50 or image[x][0][2] > 50:
+        pixelIsBox = 0
     return pixelIsBox
 # ----------------------------------------------------------        
 def DirectionToFaceBox():
     direction = 0
+    decided = 0
     if IsPixelBox(3) == 0:
         for p in range(len(camera.getImageArray())):
             if IsPixelBox(p):
                 #if p<(len(image)-1)/2:
                 if p<3:
-                    direction = -1
-                #elif p>(len(image)-1)/2:
+                   direction = -1
+                 #elif p>(len(image)-1)/2:
                 elif p>3:
-                    direction = 1
+                   direction = 1
+    
+    for i in range(3):
+        if decided == 0:
+            if IsPixelBox(i) > IsPixelBox(6-i) and IsPixelBox(i+1) > IsPixelBox(6-(i+1)):
+                direction = -1
+                decided = 1
+            elif IsPixelBox(i) < IsPixelBox(6-i) and IsPixelBox(i+1) < IsPixelBox(6-(i+1)):
+                direction = 1
+                decided = 1
+            
     return direction
 
 # ----------------------------------------------------------
 def FaceBox():
     atBox = 0
-    while IsPixelBox(3) != 1:
+    centered = 0
+    while centered == 0:
+    
+        for i in range(3):
+            if IsPixelBox(i) > IsPixelBox(6-i) and IsPixelBox(i+1) == IsPixelBox(6-(i+1)):
+                centered = 1
+            elif IsPixelBox(i) < IsPixelBox(6-i) and IsPixelBox(i+1) == IsPixelBox(6-(i+1)):
+                centered = 1
+            elif IsPixelBox(i) == IsPixelBox(6-i):
+                centered = 1
+    
         direction = DirectionToFaceBox()
          # initialize motor speeds at 50% of MAX_SPEED.
-        leftSpeed  = 0.5 * MAX_SPEED
-        rightSpeed = 0.5 * MAX_SPEED
+        leftSpeed  = 0.7 * MAX_SPEED
+        rightSpeed = 0.7 * MAX_SPEED
         # modify speeds according to obstacles
         if direction == -1:
             # turn right
@@ -123,8 +145,8 @@ def FaceBox():
         if (IsPixelBox(0) == 1 and IsPixelBox(3) == 1) or ((IsPixelBox(6) == 1 and IsPixelBox(3) == 1)):
             atBox =1
         else:
-            leftMotor.setVelocity(0.5 * MAX_SPEED)
-            rightMotor.setVelocity(0.5 * MAX_SPEED)
+            leftMotor.setVelocity(0.1 * MAX_SPEED)
+            rightMotor.setVelocity(0.1 * MAX_SPEED)
         
     pass
 # ----------------------------------------------------------
@@ -137,8 +159,8 @@ def ArrivedAtBox():
 # ----------------------------------------------------------    
 def FaceBox2():
 
-    leftSpeed  = 0.5 * MAX_SPEED
-    rightSpeed = 0.5 * MAX_SPEED
+    leftSpeed  = 0.7 * MAX_SPEED
+    rightSpeed = 0.7 * MAX_SPEED
     #while DirectionToFaceBox != 0:
     # modify speeds according to obstacles
     if DirectionToFaceBox() == 1:
@@ -160,6 +182,11 @@ def FaceBox2():
 # feedback loop: step simulation until receiving an exit event
 while robot.step(TIME_STEP) != -1:
     # read sensors outputs
+    leftSpeed  = 0.7 * MAX_SPEED
+    rightSpeed = 0.7 * MAX_SPEED
+    leftMotor.setVelocity(leftSpeed)
+    rightMotor.setVelocity(rightSpeed)
+    
     if PrintStats == 1:
         print("Camera Array: ", camera.getImageArray())
     psValues = []
@@ -196,8 +223,9 @@ while robot.step(TIME_STEP) != -1:
             Explore()
         else:
             FaceBox2()
-            
-        print(ArrivedAtBox())
+        if ArrivedAtBox() == 1 and ArrivalDeclared == 0:  
+            print("Box located, Awaiting further instructions")
+            ArrivalDeclared = 1
         if ArrivedAtBox() == 1:
             leftMotor.setVelocity(0)
             rightMotor.setVelocity(0)

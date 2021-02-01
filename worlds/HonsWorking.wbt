@@ -6,62 +6,45 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation 0.28351271756977636 -0.9108187716953132 -0.3000495027551969 4.583326271114045
-  position 1.6824066000877806 1.7987289133300184 -0.4557833904764059
+  orientation 0.28690297303837187 -0.9133122574450782 -0.28904567885079746 4.635704148733515
+  position 0.9544270166278056 0.7732777256381657 0.26138945976014627
 }
 TexturedBackground {
 }
 TexturedBackgroundLight {
 }
 Floor {
-  size 2 2
+  size 4 4
+  tileSize 1 1
 }
 E-puck {
-  translation 0.412608 0.0200085 -0.534165
-  rotation -0.00014884099813941334 0.9999999874995017 -5.336059933296591e-05 -1.6788753071795863
-  name "e-puck(2)"
-  controller "epuck_avoid_collision"
-  supervisor TRUE
-  camera_width 7
-  camera_height 1
-}
-E-puck {
-  translation -0.253294 0.399751 0.661486
-  rotation -0.00011239499921710055 0.9999999930343926 3.6035799748988764e-05 -2.987875307179586
-  name "e-puck(3)"
-  controller "epuck_avoid_collision"
-  supervisor TRUE
-  camera_width 7
-  camera_height 1
-}
-E-puck {
-  translation -0.103224 0.589854 -0.334876
-  rotation -0.00011833899914414276 0.9999999927677499 2.1456499844821227e-05 -2.726085307179586
-  name "e-puck(4)"
-  controller "epuck_avoid_collision"
-  supervisor TRUE
-  camera_width 7
-  camera_height 1
-}
-E-puck {
-  translation 0.0220768 0.0599641 -0.846741
-  rotation -4.409699904352718e-05 0.9999999783097984 0.00020355799558478593 1.20091
+  translation 0.0411657 -0.000621987 0.0487926
+  rotation -0.0004098559571594393 0.999999895474116 0.00020265697881709794 2.50077
   name "e-puck(1)"
-  controller "epuck_avoid_collision"
+  controller "epuck_avoid_collision_Red"
+  supervisor TRUE
+  camera_width 7
+  camera_height 1
+}
+E-puck {
+  translation 0.155145 -0.00107062 0.101974
+  rotation 0.0011066101077381772 -0.9999990973586623 0.000762034074190685 -2.462055307179586
+  name "e-puck(3)"
+  controller "epuck_avoid_collision_Green"
   supervisor TRUE
   camera_width 7
   camera_height 1
 }
 WoodenBox {
-  translation 0.85 0.0499804 0.85
+  translation 1.9 0.14998 1.89
   rotation -0.7071065851341293 1.8202027969300415e-07 0.707106977238888 1.3461181436439662e-10
-  name "wooden box(4)"
+  name "wooden box(1)"
   size 0.1 0.1 0.1
   mass 0.1
 }
 Solid {
-  translation 0 0.025 1
-  scale 2 2 2
+  translation 0 0.025 1.49
+  scale 4 4 4
   children [
     Shape {
       appearance DEF WallAppearance PBRAppearance {
@@ -78,8 +61,37 @@ Solid {
   boundingObject USE Wall1
 }
 Solid {
-  translation 0 0.025 -1
-  scale 2 2 2
+  translation -0.078201 0.18 0.441801
+  rotation 0.6947458960396213 0.6947458960396213 0.18616197214309688 2.77348
+  children [
+    TexturedBoxShape {
+      size 0.1 0.2 0.1
+      textureUrl [
+        "E:/Uni/Webots/projects/samples/geometries/worlds/textures/RG.png"
+      ]
+      textureTransform TextureTransform {
+        scale 0.7 0.01
+        translation 0.2 -0.7
+      }
+      textureMapping "none"
+      faceColor 0 0 0
+      backFace FALSE
+      leftFace FALSE
+      rightFace FALSE
+      topFace FALSE
+      bottomFace FALSE
+    }
+  ]
+  boundingObject Box {
+    size 0.1 0.2 0.1
+  }
+  physics Physics {
+    mass 0.001
+  }
+}
+Solid {
+  translation 0 0.025 -1.5
+  scale 4 4 4
   children [
     Shape {
       appearance USE WallAppearance
@@ -92,9 +104,9 @@ Solid {
   boundingObject USE Wall1
 }
 Solid {
-  translation 1 0.025 -1.68353e-06
+  translation 2 0.025 -5.05061e-06
   rotation 0 1 0 1.5707996938995747
-  scale 2 2 2
+  scale 4 4 4
   children [
     Shape {
       appearance USE WallAppearance
@@ -107,9 +119,9 @@ Solid {
   boundingObject USE Wall1
 }
 Solid {
-  translation -1 0.025 1.68353e-06
+  translation -0.5 0.025 9.46781e-13
   rotation 0 1 0 1.5707996938995747
-  scale 2 2 2
+  scale 4 4 4
   children [
     Shape {
       appearance USE WallAppearance
@@ -120,12 +132,4 @@ Solid {
   ]
   name "Wall4"
   boundingObject USE Wall1
-}
-SolidBox {
-  translation -0.7 0.15 -0.1
-  size 0.3 0.3 0.3
-  appearance PBRAppearance {
-    baseColor 0 0 0
-    roughness 1
-  }
 }
