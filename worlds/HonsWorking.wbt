@@ -6,8 +6,8 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation 0.28690297303837187 -0.9133122574450782 -0.28904567885079746 4.635704148733515
-  position 0.9544270166278056 0.7732777256381657 0.26138945976014627
+  orientation 0.39692459374648265 -0.7796243613524806 -0.48439314824316665 4.291202966294145
+  position 2.6485588804199454 3.600010709009814 -0.7945299081874801
 }
 TexturedBackground {
 }
@@ -18,8 +18,8 @@ Floor {
   tileSize 1 1
 }
 E-puck {
-  translation 0.0411657 -0.000621987 0.0487926
-  rotation -0.0004098559571594393 0.999999895474116 0.00020265697881709794 2.50077
+  translation 1.61842 0.000871109 -1.0963
+  rotation -0.0003622619227439261 0.9999997867397796 0.0005434028841137565 1.45357
   name "e-puck(1)"
   controller "epuck_avoid_collision_Red"
   supervisor TRUE
@@ -27,8 +27,8 @@ E-puck {
   camera_height 1
 }
 E-puck {
-  translation 0.155145 -0.00107062 0.101974
-  rotation 0.0011066101077381772 -0.9999990973586623 0.000762034074190685 -2.462055307179586
+  translation 1.43253 -0.000647989 -0.619381
+  rotation 0.0019431101946856427 -0.9999981001926053 0.00015470601550042818 -1.4148653071795865
   name "e-puck(3)"
   controller "epuck_avoid_collision_Green"
   supervisor TRUE
@@ -43,7 +43,7 @@ WoodenBox {
   mass 0.1
 }
 Solid {
-  translation 0 0.025 1.49
+  translation 0 0.025 0.49
   scale 4 4 4
   children [
     Shape {
@@ -61,17 +61,17 @@ Solid {
   boundingObject USE Wall1
 }
 Solid {
-  translation -0.078201 0.18 0.441801
-  rotation 0.6947458960396213 0.6947458960396213 0.18616197214309688 2.77348
+  translation 0.096946 0.18 -0.571276
+  rotation -0.6215137140226498 -0.62151171402357 -0.4769107805588545 -2.251585307179586
   children [
     TexturedBoxShape {
-      size 0.1 0.2 0.1
+      size 0.1 0.3 0.1
       textureUrl [
         "E:/Uni/Webots/projects/samples/geometries/worlds/textures/RG.png"
       ]
       textureTransform TextureTransform {
-        scale 0.7 0.01
-        translation 0.2 -0.7
+        scale 1.1 0.01
+        translation 0.86 -0.7
       }
       textureMapping "none"
       faceColor 0 0 0
@@ -83,7 +83,7 @@ Solid {
     }
   ]
   boundingObject Box {
-    size 0.1 0.2 0.1
+    size 0.1 0.3 0.1
   }
   physics Physics {
     mass 0.001

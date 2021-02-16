@@ -3,7 +3,13 @@ from controller import Robot, DistanceSensor, Motor, Supervisor, Node, Camera
 import numpy as np
 import deap
 import nnfs
+import os
+import time
 
+if os.path.exists("Green.txt"):
+  os.remove("Green.txt")
+f = open("Green.txt", "w")
+f.write("0")
 # time in [ms] of a simulation step
 TIME_STEP = 32
 
@@ -49,7 +55,7 @@ psValuesAverage5 = []
 psValuesAverage6 = []
 psValuesAverage7 = []
 avgSampleSize = 10
-turningThreshhold = 15
+turningThreshhold = 10
 fb = 0
 
 push = 0
@@ -58,6 +64,16 @@ push = 0
 def avg(lst): 
     if len(lst) != 0:
         return sum(lst) / len(lst) 
+    
+    
+# ----------------------------------------------------------
+
+def sum(lst): 
+    sum = 0
+    for i in range(len(lst)):
+        sum = sum + lst[i]
+    
+    return sum
     
     
 # ----------------------------------------------------------
@@ -102,14 +118,20 @@ def IsPixelBox(x):
     pixelIsBox = 1
     image = camera.getImageArray()
     if Colour == 1:
-        if image[x][0][0] < 200 or image[x][0][1] < 40 or image[x][0][1] > 60 or image[x][0][2] < 40 or image[x][0][2] > 60:
+        
+        if image[x][0][0] < image[x][0][1]*5 - 20 or image[x][0][0] > image[x][0][2]*4 + 20 or image[x][0][0] < image[x][0][2]*3 - 20:
         #if image[x][0][0] > 60 or image[x][0][0] < 40 or image[x][0][1] < 150 or image[x][0][1] > 190 or image[x][0][2] < 70 or image[x][0][2] > 100:
             pixelIsBox = 0
     if Colour == 0:
+        if image[x][0][0] * 6 > image[x][0][1] + 20 or image[x][0][0] * 6 < image[x][0][1] - 20 or image[x][0][0] * 5 > image[x][0][2]*2 + 40 or image[x][0][0] * 5 < image[x][0][2]*2 - 40:
         #if image[x][0][0] < 200 or image[x][0][1] < 40 or image[x][0][1] > 60 or image[x][0][2] < 40 or image[x][0][2] > 60:
-        if image[x][0][0] > 60 or image[x][0][0] < 40 or image[x][0][1] < 150 or image[x][0][1] > 190 or image[x][0][2] < 70 or image[x][0][2] > 100:
+        #if image[x][0][0] > 40 or image[x][0][0] < 20 or image[x][0][1] < 170 or image[x][0][1] > 200 or image[x][0][2] < 70 or image[x][0][2] > 100:
             pixelIsBox = 0
-    return pixelIsBox
+    if sum(image[x][0]) == 0:
+        return 0
+    else:        
+        return pixelIsBox
+        
 # ----------------------------------------------------------        
 def DirectionToFaceBox():
     direction = 0
@@ -186,8 +208,8 @@ def ArrivedAtBox():
 # ----------------------------------------------------------    
 def FaceBox2():
 
-    leftSpeed  = 0.4 * MAX_SPEED
-    rightSpeed = 0.4 * MAX_SPEED
+    leftSpeed  = 0.1 * MAX_SPEED
+    rightSpeed = 0.1 * MAX_SPEED
     #while DirectionToFaceBox != 0:
     # modify speeds according to obstacles
     if DirectionToFaceBox() == 1:
@@ -218,10 +240,10 @@ def FaceBox3(L, R):
 
 def FaceBox3a():
     fb = FaceBox3(psValues[0], psValues[7])
-    print("Green: ", fb)
+    #print("Green: ", fb)
     while fb != 0:
         if fb == 1:
-            print("fb = 1")
+            #print("fb = 1")
             leftSpeed  = -0.7 * MAX_SPEED
             rightSpeed = 0.7 * MAX_SPEED
             leftMotor.setVelocity(leftSpeed)
@@ -229,7 +251,7 @@ def FaceBox3a():
             fb = FaceBox3(psValues[0], psValues[7])
                 
         if fb == 2:
-            print("fb = 2")
+            #print("fb = 2")
             leftSpeed  = 0.7 * MAX_SPEED
             rightSpeed = -0.7 * MAX_SPEED
             leftMotor.setVelocity(leftSpeed)
@@ -240,7 +262,21 @@ def FaceBox3a():
     rightMotor.setVelocity(0)
 
 # ----------------------------------------------------------   
+def OtherRobotArrival():
+    check = 0
+    file = "..\\epuck_avoid_collision_Red\Red.txt"
+    if os.path.exists(file):
+        OtherFile = open(file, "r")
+        for element in OtherFile.read():
+            if element == "1":
+                check = 1
+        #print("GreenFile: ", GreenFile.read())
+        #if GreenFile.read() == " 1 ":
+            #return 1
 
+    return check
+        
+# ----------------------------------------------------------   
 # feedback loop: step simulation until receiving an exit event
 while robot.step(TIME_STEP) != -1:
     # read sensors outputs
@@ -327,8 +363,12 @@ while robot.step(TIME_STEP) != -1:
         else:
             FaceBox2()
         if ArrivedAtBox() == 1:  
+            f = open("Green.txt", "w")
+            
+            f.write("1")
             if ArrivalDeclared == 0:
                 ArrivalDeclared = 1
+                
                 #print("Green Box located, Awaiting further instructions")
             PrintStats = 0
             ArrivalDeclared = 1
@@ -337,7 +377,7 @@ while robot.step(TIME_STEP) != -1:
             
             fb = FaceBox3(avg(psValuesAverage0), avg(psValuesAverage7))
               
-            print("Green: ", fb)
+            #print("Green: ", fb)
             if fb == 0:
                 if avg(psValuesAverage2) > 69:
                     push = 1
@@ -346,7 +386,8 @@ while robot.step(TIME_STEP) != -1:
                     rightMotor.setVelocity(0)
             
             if fb == 1:
-                print("fb = 1")
+            
+                #print("fb = 1")
                 leftSpeed  = -0.7 * MAX_SPEED
                 rightSpeed = 0.7 * MAX_SPEED
                 leftMotor.setVelocity(leftSpeed)
@@ -354,17 +395,23 @@ while robot.step(TIME_STEP) != -1:
                 
                         
             if fb == 2:
-                print("fb = 2")
+                #print("fb = 2")
                 leftSpeed  = 0.7 * MAX_SPEED
                 rightSpeed = -0.7 * MAX_SPEED
                 leftMotor.setVelocity(leftSpeed)
                 rightMotor.setVelocity(rightSpeed)
                 
               
-            if push ==1:
-                leftMotor.setVelocity(MAX_SPEED)
-                rightMotor.setVelocity(MAX_SPEED)
-            
+            if OtherRobotArrival() == 1:
+                leftMotor.setVelocity(0.5*MAX_SPEED)
+                rightMotor.setVelocity(0.5*MAX_SPEED)
+                state = 3
+                
+
+    elif state == 3:
+        if PrintStats == 1:
+                print(p, " - ", IsPixelBox(p), " ", camera.getImageArray()[p][0])
+        FaceBox2()
                     
 
     
