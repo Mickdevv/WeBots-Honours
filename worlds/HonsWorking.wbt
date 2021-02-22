@@ -6,68 +6,53 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation 0.39692459374648265 -0.7796243613524806 -0.48439314824316665 4.291202966294145
-  position 2.6485588804199454 3.600010709009814 -0.7945299081874801
+  orientation -0.23486923990247682 -0.9496325236076171 -0.20744760845635538 1.5273013877796133
+  position -6.872140089925064 3.4254436744640295 -0.46228525493686856
 }
 TexturedBackground {
 }
 TexturedBackgroundLight {
 }
 Floor {
-  size 4 4
+  size 8 8
   tileSize 1 1
 }
 E-puck {
-  translation 1.61842 0.000871109 -1.0963
-  rotation -0.0003622619227439261 0.9999997867397796 0.0005434028841137565 1.45357
-  name "e-puck(1)"
+  translation -2.00685 -0.0143162 0.578271
+  rotation -0.0017515996764645738 0.9999978152918593 0.001140749789293767 1.66732
+  name "e-puck_Red"
   controller "epuck_avoid_collision_Red"
-  supervisor TRUE
+  camera_fieldOfView 1
   camera_width 7
   camera_height 1
 }
 E-puck {
-  translation 1.43253 -0.000647989 -0.619381
-  rotation 0.0019431101946856427 -0.9999981001926053 0.00015470601550042818 -1.4148653071795865
-  name "e-puck(3)"
+  translation -1.92974 -0.0143229 -0.0875125
+  rotation -0.0012400704653169159 0.999997375233269 0.0019265907229228324 1.48389
+  name "e-puck_Green"
   controller "epuck_avoid_collision_Green"
-  supervisor TRUE
+  camera_fieldOfView 1
   camera_width 7
   camera_height 1
 }
-WoodenBox {
-  translation 1.9 0.14998 1.89
-  rotation -0.7071065851341293 1.8202027969300415e-07 0.707106977238888 1.3461181436439662e-10
-  name "wooden box(1)"
-  size 0.1 0.1 0.1
-  mass 0.1
+E-puck {
+  translation -1.98176 -0.0145385 -0.785613
+  rotation -0.0015365394419501715 0.9999976368147185 0.0015379894414235516 1.5708
+  name "e-puck_Blue"
+  controller "epuck_avoid_collision_Blue"
+  camera_fieldOfView 1
+  camera_width 7
+  camera_height 1
 }
-Solid {
-  translation 0 0.025 0.49
-  scale 4 4 4
-  children [
-    Shape {
-      appearance DEF WallAppearance PBRAppearance {
-        baseColor 0 0 1
-        roughness 0.5
-        metalness 0
-      }
-      geometry DEF Wall1 Box {
-        size 1 0.05 0.01
-      }
-    }
-  ]
-  name "Wall1"
-  boundingObject USE Wall1
-}
-Solid {
-  translation 0.096946 0.18 -0.571276
-  rotation -0.6215137140226498 -0.62151171402357 -0.4769107805588545 -2.251585307179586
+Robot {
+  translation -0.77491 0.0487398 -0.222411
+  rotation 0.5772210905117502 0.5774143327793888 -0.5774153626024849 -2.0945878151302804
+  scale 2 2 2
   children [
     TexturedBoxShape {
-      size 0.1 0.3 0.1
+      size 0.05 0.5 0.1
       textureUrl [
-        "E:/Uni/Webots/projects/samples/geometries/worlds/textures/RG.png"
+        "E:/Uni/Webots/projects/samples/geometries/worlds/textures/RGB.png"
       ]
       textureTransform TextureTransform {
         scale 1.1 0.01
@@ -82,19 +67,45 @@ Solid {
       bottomFace FALSE
     }
   ]
+  name "MY_ROBOT"
   boundingObject Box {
-    size 0.1 0.3 0.1
+    size 0.05 0.5 0.1
   }
   physics Physics {
-    mass 0.001
+    density 20
   }
+  controller "epuck_avoid_collision_Supervisor_Michael"
+  supervisor TRUE
+}
+WoodenBox {
+  translation 1.9 0.04998037948279736 1.89
+  rotation -0.7071065269885548 -2.3064122599796392e-07 0.7071070353844114 1.346117929326395e-10
+  name "wooden box(1)"
+  size 0.1 0.1 0.1
+  mass 0.1
 }
 Solid {
-  translation 0 0.025 -1.5
-  scale 4 4 4
+  translation 0 0.025 1.49
+  scale 6 6 6
   children [
     Shape {
-      appearance USE WallAppearance
+      appearance DEF WallAppearance PBRAppearance {
+        roughness 0.5
+        metalness 0
+      }
+      geometry DEF Wall1 Box {
+        size 1 0.05 0.01
+      }
+    }
+  ]
+  name "Wall1"
+  boundingObject USE Wall1
+}
+Solid {
+  translation 0 0.025 -2.01
+  scale 6 6 6
+  children [
+    Shape {
       geometry DEF Wall1 Box {
         size 1 0.05 0.01
       }
@@ -104,12 +115,11 @@ Solid {
   boundingObject USE Wall1
 }
 Solid {
-  translation 2 0.025 -5.05061e-06
+  translation 3 0.025 -8.41769e-06
   rotation 0 1 0 1.5707996938995747
-  scale 4 4 4
+  scale 5 5 5
   children [
     Shape {
-      appearance USE WallAppearance
       geometry DEF Wall1 Box {
         size 1 0.05 0.01
       }
@@ -119,9 +129,9 @@ Solid {
   boundingObject USE Wall1
 }
 Solid {
-  translation -0.5 0.025 9.46781e-13
+  translation -3 0.025 8.41753e-06
   rotation 0 1 0 1.5707996938995747
-  scale 4 4 4
+  scale 5 5 5
   children [
     Shape {
       appearance USE WallAppearance
