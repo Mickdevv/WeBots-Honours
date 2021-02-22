@@ -15,13 +15,14 @@ import sys
 TIME_STEP = 32
 
 supervisor = Supervisor()
-robot_node = supervisor.getFromDef("Robot")
+robot_node = supervisor.getFromDef("Supervisor")
 if robot_node is None:
     sys.stderr.write("No DEF MY_ROBOT node found in the current world file\n")
     sys.exit(1)
 trans_field = robot_node.getField("translation")
+print(trans_field.getSFVec3f())
 
-reset = 0
+reset = 1
 timeRecorded = 0
 
 Colours = ["Red", "Green", "Blue"]
@@ -69,17 +70,16 @@ while supervisor.step(TIME_STEP) != -1:
             #print(1)
             #Node.restartController(supervisor.getFromDef("e-puck_" + Colours[i]))
             #timeRecorded = 1
-
-    if RobotsArrivedAtBox() == 1 and timeRecorded == 0:
+    trans_field = robot_node.getField("translation")
+    print(trans_field.getSFVec3f())
+    
+    if trans_field.getSFVec3f()[0] > 2.5:
         with open('BlueTimes.csv', 'a') as the_file:
             the_file.writelines(str(supervisor.getTime()))
             the_file.writelines('\n')
             print("Time recorded: ", supervisor.getTime())
             timeRecorded = 1
             
-        for i in range(len(Colours)):
-            f = open(Colours[i] + ".txt", "w")
-            f.write("0")
         
         if reset == 1:
             supervisor.worldReload()
