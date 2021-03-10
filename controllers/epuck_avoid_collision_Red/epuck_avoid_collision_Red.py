@@ -1,19 +1,21 @@
 from math import sqrt
 from controller import Robot, DistanceSensor, Motor, Supervisor, Node, Camera, Field, GPS
 import numpy as np
-import deap
-import nnfs
-import os
-import time
-import csv
+import deap, nnfs, os, time, csv, sys, random
+import pandas as pd
 
 Colour = 1
-PrintStats = 0    
-    
+PrintStats = 0
+pixelCountSet = 15
+shortenCamera = 0
+numberOfRobots = 1
 # time in [ms] of a simulation step
 TIME_STEP = 32
 
 MAX_SPEED = 6.28
+
+TurningSpeed = 0.5
+MovingSpeed = 1
 
 ##Bigger the number, the closer it will get to obstacles
 DistanceValue = 78
@@ -21,6 +23,10 @@ DistanceValue = 78
 robot = Robot()
 camera = Camera("camera")
 camera.enable(100)
+
+
+#print(robot.getDevice(robot.getName()))
+
 #gps = GPS("gps")
 #gps.enable(100)
 # initialize devices
@@ -77,6 +83,8 @@ turningThreshhold = 10
 fb = 0
 
 push = 0
+
+
 # ----------------------------------------------------------
 
 def avg(lst): 
@@ -96,17 +104,17 @@ def sum(lst):
 
 def Explore():
     # initialize motor speeds at 50% of MAX_SPEED.
-    leftSpeed  = 1 * MAX_SPEED
-    rightSpeed = 1 * MAX_SPEED
+    leftSpeed  = MovingSpeed * MAX_SPEED
+    rightSpeed = MovingSpeed * MAX_SPEED
     # modify speeds according to obstacles
     if left_obstacle:
         # turn right
-        leftSpeed  = 0.5 * MAX_SPEED
-        rightSpeed = -0.5 * MAX_SPEED
+        leftSpeed  = TurningSpeed * MAX_SPEED
+        rightSpeed = -TurningSpeed * MAX_SPEED
     elif right_obstacle:
         # turn left
-        leftSpeed  = -0.5 * MAX_SPEED
-        rightSpeed = 0.5 * MAX_SPEED
+        leftSpeed  = -TurningSpeed * MAX_SPEED
+        rightSpeed = TurningSpeed * MAX_SPEED
     # write actuators inputs
     leftMotor.setVelocity(leftSpeed)
     rightMotor.setVelocity(rightSpeed)
@@ -114,17 +122,17 @@ def Explore():
 # ----------------------------------------------------------
 def BoxFound():
     # initialize motor speeds at 50% of MAX_SPEED.
-    leftSpeed  = 0.9 * MAX_SPEED
-    rightSpeed = 0.9 * MAX_SPEED
+    leftSpeed  = MovingSpeed * MAX_SPEED
+    rightSpeed = MovingSpeed * MAX_SPEED
     # modify speeds according to obstacles
     if left_obstacle:
         # turn right
-        leftSpeed  = 0.5 * MAX_SPEED
-        rightSpeed = -0.5 * MAX_SPEED
+        leftSpeed  = TurningSpeed * MAX_SPEED
+        rightSpeed = -TurningSpeed * MAX_SPEED
     elif right_obstacle:
         # turn left
-        leftSpeed  = -0.5 * MAX_SPEED
-        rightSpeed = 0.5 * MAX_SPEED
+        leftSpeed  = -TurningSpeed * MAX_SPEED
+        rightSpeed = TurningSpeed * MAX_SPEED
     # write actuators inputs
     leftMotor.setVelocity(leftSpeed)
     rightMotor.setVelocity(rightSpeed)
@@ -133,6 +141,10 @@ def BoxFound():
 def IsPixelBox(x):
     pixelIsBox = 1
     image = camera.getImageArray()
+    if shortenCamera == 1:
+        while len(image) > pixelCountSet:
+            image.pop(len(image)-1)
+            image.pop(0)
     
     #Green
     if Colour == 0:
@@ -158,97 +170,74 @@ def IsPixelBox(x):
     else:        
         return pixelIsBox
         
-# ----------------------------------------------------------        
+# ----------------------------------------------------------     
+
 def DirectionToFaceBox():
     direction = 0
     decided = 0
     st2 = 0
-    if IsPixelBox(3) == 0:
-        for p in range(len(camera.getImageArray())):
-            if IsPixelBox(p):
-                #if p<(len(image)-1)/2:
-                if p<3:
-                   direction = -1
-                   st2 = 1
-                 #elif p>(len(image)-1)/2:
-                elif p>3:
-                   direction = 1
-                   st2 = 1
-    if st2 == 0:
-        for i in range(3):
-            if decided == 0:
-                if IsPixelBox(i) > IsPixelBox(6-i) and IsPixelBox(i+1) > IsPixelBox(6-(i+1)):
-                    direction = -1
-                    decided = 1
-                elif IsPixelBox(i) < IsPixelBox(6-i) and IsPixelBox(i+1) < IsPixelBox(6-(i+1)):
-                    direction = 1
-                    decided = 1
+    image = camera.getImageArray()
+    if shortenCamera == 1:
+        while len(image) > pixelCountSet:
+            image.pop(len(image)-1)
+            image.pop(0)
+        
+    PixelCount = int(len(image))
+    middlePixelIndex = int((PixelCount - 1)/2)
+    
+    if IsPixelBox(middlePixelIndex) == 0:
+        for p in range(middlePixelIndex):
+            if IsPixelBox(p) > IsPixelBox(PixelCount-1-p):
+                direction = -1
+            elif IsPixelBox(p) < IsPixelBox(PixelCount-1-p):
+                direction = 1
+        if PrintStats == 1:
+            print("ST1: ", direction)  
+                     
+    elif IsPixelBox(middlePixelIndex) == 1:
+        for p in range(middlePixelIndex-1):
+            if IsPixelBox(p) > IsPixelBox(PixelCount-1-p) and IsPixelBox(p+1) > IsPixelBox(PixelCount-1-(p+1)):
+                direction = -1
+            elif IsPixelBox(p) < IsPixelBox(PixelCount-1-p) and IsPixelBox(p+1) < IsPixelBox(PixelCount-1-(p+1)):
+                direction = 1
+        if PrintStats == 1:
+            print("ST2: ", direction)  
             
     return direction
 
 # ----------------------------------------------------------
-def FaceBox():
-    atBox = 0
-    centered = 0
-    while centered == 0:
-    
-        for i in range(3):
-            if IsPixelBox(i) > IsPixelBox(6-i) and IsPixelBox(i+1) == IsPixelBox(6-(i+1)):
-                centered = 1
-            elif IsPixelBox(i) < IsPixelBox(6-i) and IsPixelBox(i+1) == IsPixelBox(6-(i+1)):
-                centered = 1
-            elif IsPixelBox(i) == IsPixelBox(6-i):
-                centered = 1
-    
-        direction = DirectionToFaceBox()
-         # initialize motor speeds at 50% of MAX_SPEED.
-        leftSpeed  = 0.7 * MAX_SPEED
-        rightSpeed = 0.7 * MAX_SPEED
-        # modify speeds according to obstacles
-        if direction == -1:
-            # turn right
-            leftSpeed  = 0.5 * MAX_SPEED
-            rightSpeed = -0.5 * MAX_SPEED
-        elif direction == 1:
-            # turn left
-            leftSpeed  = -0.5 * MAX_SPEED
-            rightSpeed = 0.5 * MAX_SPEED
-        # write actuators inputs
-        leftMotor.setVelocity(leftSpeed)
-        rightMotor.setVelocity(rightSpeed)
-        
-    while atBox == 0:
-        if (IsPixelBox(0) == 1 and IsPixelBox(3) == 1) or ((IsPixelBox(6) == 1 and IsPixelBox(3) == 1)):
-            atBox =1
-        else:
-            leftMotor.setVelocity(0.1 * MAX_SPEED)
-            rightMotor.setVelocity(0.1 * MAX_SPEED)
-        
-    pass
-# ----------------------------------------------------------
 def ArrivedAtBox():
+    image = camera.getImageArray()
+    if shortenCamera == 1:
+        while len(image) > pixelCountSet:
+            image.pop(len(image)-1)
+            image.pop(0)
+        
+    PixelCount = int(len(image))
+    middlePixelIndex = int((PixelCount - 1)/2)
+    
     arrived = 1
     
-    for i in range(7):
+    for i in range(PixelCount):
         if IsPixelBox(i) == 0:
-            if psValues[0] < DistanceValue+30 or psValues[7] < DistanceValue+30:
                 arrived = 0
+                
     return arrived
 # ----------------------------------------------------------    
 def FaceBox2():
 
-    leftSpeed  = 0.9 * MAX_SPEED
-    rightSpeed = 0.9 * MAX_SPEED
+    leftSpeed  = MovingSpeed * MAX_SPEED
+    rightSpeed = MovingSpeed * MAX_SPEED
     #while DirectionToFaceBox != 0:
     # modify speeds according to obstacles
     if DirectionToFaceBox() == 1:
         # turn right
-        leftSpeed  = 0.9 * MAX_SPEED
-        rightSpeed = -0.9 * MAX_SPEED
+        leftSpeed  = TurningSpeed * MAX_SPEED
+        rightSpeed = -TurningSpeed * MAX_SPEED
     elif DirectionToFaceBox() == -1:
         # turn left
-        leftSpeed  = -0.9 * MAX_SPEED
-        rightSpeed = 0.9 * MAX_SPEED
+        leftSpeed  = -TurningSpeed * MAX_SPEED
+        rightSpeed = TurningSpeed * MAX_SPEED
 
     # write actuators inputs
     leftMotor.setVelocity(leftSpeed)
@@ -273,16 +262,16 @@ def FaceBox3a():
     while fb != 0:
         if fb == 1:
             #print("fb = 1")
-            leftSpeed  = -0.9 * MAX_SPEED
-            rightSpeed = 0.9 * MAX_SPEED
+            leftSpeed  = -TurningSpeed * MAX_SPEED
+            rightSpeed = TurningSpeed * MAX_SPEED
             leftMotor.setVelocity(leftSpeed)
             rightMotor.setVelocity(rightSpeed)
             fb = FaceBox3(psValues[0], psValues[7])
                 
         if fb == 2:
             #print("fb = 2")
-            leftSpeed  = 0.9 * MAX_SPEED
-            rightSpeed = -0.9 * MAX_SPEED
+            leftSpeed  = TurningSpeed * MAX_SPEED
+            rightSpeed = -TurningSpeed * MAX_SPEED
             leftMotor.setVelocity(leftSpeed)
             rightMotor.setVelocity(rightSpeed)
             fb = FaceBox3(psValues[0], psValues[7])
@@ -296,46 +285,66 @@ def OtherRobotArrival():
     checkS2 = 0
     
     if Colour == 0:
-        file = "..\\epuck_avoid_collision_Red\Red.txt"
-        if os.path.exists(file):
-            OtherFile = open(file, "r")
-            for element in OtherFile.read():
-                if element == "1":
-                    checkS1 = 1
-        file = "..\\epuck_avoid_collision_Blue\Blue.txt"
-        if os.path.exists(file) and checkS1 == 1:
-            OtherFile = open(file, "r")
-            for element in OtherFile.read():
-                if element == "1":
-                    checkS2 = 1
+        if numberOfRobots == 1:
+            checkS2 = 1
+                        
+        elif numberOfRobots == 3:
+            file = "..\\epuck_avoid_collision_Red\Red.txt"
+            if os.path.exists(file):
+                OtherFile = open(file, "r")
+                for element in OtherFile.read():
+                    if element == "1":
+                        checkS1 = 1
+            file = "..\\epuck_avoid_collision_Blue\Blue.txt"
+            if os.path.exists(file) and checkS1 == 1:
+                OtherFile = open(file, "r")
+                for element in OtherFile.read():
+                    if element == "1":
+                        checkS2 = 1
             
     if Colour == 1:
-        file = "..\\epuck_avoid_collision_Green\Green.txt"
-        if os.path.exists(file):
-            OtherFile = open(file, "r")
-            for element in OtherFile.read():
-                if element == "1":
-                    checkS1 = 1
-        file = "..\\epuck_avoid_collision_Blue\Blue.txt"
-        if os.path.exists(file) and checkS1 == 1:
-            OtherFile = open(file, "r")
-            for element in OtherFile.read():
-                if element == "1":
-                    checkS2 = 1
+        if numberOfRobots == 2:
+                file = "..\\epuck_avoid_collision_Blue\Blue.txt"
+                if os.path.exists(file):
+                    OtherFile = open(file, "r")
+                    for element in OtherFile.read():
+                        if element == "1":
+                            checkS2 = 1
+        elif numberOfRobots == 3:
+            file = "..\\epuck_avoid_collision_Green\Green.txt"
+            if os.path.exists(file):
+                OtherFile = open(file, "r")
+                for element in OtherFile.read():
+                    if element == "1":
+                        checkS1 = 1
+            file = "..\\epuck_avoid_collision_Blue\Blue.txt"
+            if os.path.exists(file) and checkS1 == 1:
+                OtherFile = open(file, "r")
+                for element in OtherFile.read():
+                    if element == "1":
+                        checkS2 = 1
                     
     if Colour == 2:
-        file = "..\\epuck_avoid_collision_Green\Green.txt"
-        if os.path.exists(file):
-            OtherFile = open(file, "r")
-            for element in OtherFile.read():
-                if element == "1":
-                    checkS1 = 1
-        file = "..\\epuck_avoid_collision_Red\Red.txt"
-        if os.path.exists(file) and checkS1 == 1:
-            OtherFile = open(file, "r")
-            for element in OtherFile.read():
-                if element == "1":
-                    checkS2 = 1
+        if numberOfRobots == 2:
+                file = "..\\epuck_avoid_collision_Red\Red.txt"
+                if os.path.exists(file):
+                    OtherFile = open(file, "r")
+                    for element in OtherFile.read():
+                        if element == "1":
+                            checkS2 = 1
+        elif numberOfRobots == 3:
+            file = "..\\epuck_avoid_collision_Green\Green.txt"
+            if os.path.exists(file):
+                OtherFile = open(file, "r")
+                for element in OtherFile.read():
+                    if element == "1":
+                        checkS1 = 1
+            file = "..\\epuck_avoid_collision_Red\Red.txt"
+            if os.path.exists(file) and checkS1 == 1:
+                OtherFile = open(file, "r")
+                for element in OtherFile.read():
+                    if element == "1":
+                        checkS2 = 1
 
     return checkS2
         
@@ -356,15 +365,13 @@ def BoxInFrame():
 while robot.step(TIME_STEP) != -1:
     # read sensors outputs
       
-    if reset == 2:
-        f = open(ColourText + ".txt", "w")
-        f.write("0")
-        state = 0
-        ArrivalDeclared = 0
-        reset = 0
     
     if PrintStats == 1:
-        print(ColourText, " Camera Array: ", camera.getImageArray())
+        image = camera.getImageArray()
+        while len(image) > pixelCountSet:
+            image.pop(len(image)-1)
+            image.pop(0)
+        print(ColourText, " Camera Array: ", image)
         
     psValues = []
     for i in range(8):
@@ -419,30 +426,45 @@ while robot.step(TIME_STEP) != -1:
 
     
     image = camera.getImageArray()
+    if shortenCamera == 1:
+        while len(image) > pixelCountSet:
+            image.pop(len(image)-1)
+            image.pop(0)
+        
+    PixelCount = int(len(image))
+    middlePixelIndex = int((PixelCount - 1)/2)
+    
     boxFound = 0
-    for p in range(len(camera.getImageArray())):
+    for p in range(PixelCount):
         if PrintStats == 1:
-            print(p, " - ", IsPixelBox(p), " ", camera.getImageArray()[p][0])
+            print(p, " - ", IsPixelBox(p), " ", image[p][0])
         if IsPixelBox(p) == 1:
-            boxFound = 1
+            boxFound = 1    
     
     if state == 0 and ArrivalDeclared == 0:
+        Explore()
         if boxFound == 1:
             state = 1
-        Explore()
+            
+    
         
     elif state == 1:
         if PrintStats == 1:
             print(ColourText, " Box Found!!! ", OtherRobotArrival(), ", ", ArrivedAtBox())
         #leftMotor.setVelocity(0)
         #rightMotor.setVelocity(0)
-        if boxFound == 0 and ArrivalDeclared == 0:
-            state = 0
+        # if boxFound == 0:
+            # state = 0
         #state = 0
-        if (left_obstacle or right_obstacle) and ArrivalDeclared != 1 and (state == 0 or state == 1):
+        if (left_obstacle or right_obstacle) and ArrivalDeclared != 1:
             Explore()
-        else:
+        elif ArrivalDeclared == 0:
             FaceBox2()
+        elif ArrivalDeclared == 1:
+            leftMotor.setVelocity(0)
+            rightMotor.setVelocity(0)
+            
+            
         if ArrivedAtBox() == 1:  
             f = open(ColourText + ".txt", "w")
             f.write("1")
@@ -456,7 +478,8 @@ while robot.step(TIME_STEP) != -1:
             rightMotor.setVelocity(0)
             
             fb = FaceBox3(avg(psValuesAverage0), avg(psValuesAverage7))
-              
+            
+        if ArrivalDeclared == 1: 
             #print("Green: ", fb)
             if fb == 0:
                 if avg(psValuesAverage2) > 69:
@@ -468,35 +491,32 @@ while robot.step(TIME_STEP) != -1:
             if fb == 1:
             
                 #print("fb = 1")
-                leftSpeed  = -0.7 * MAX_SPEED
-                rightSpeed = 0.7 * MAX_SPEED
+                leftSpeed  = -TurningSpeed * MAX_SPEED
+                rightSpeed = TurningSpeed * MAX_SPEED
                 leftMotor.setVelocity(leftSpeed)
                 rightMotor.setVelocity(rightSpeed)
                 
                         
             if fb == 2:
                 #print("fb = 2")
-                leftSpeed  = 0.7 * MAX_SPEED
-                rightSpeed = -0.7 * MAX_SPEED
+                leftSpeed  = TurningSpeed * MAX_SPEED
+                rightSpeed = -TurningSpeed * MAX_SPEED
                 leftMotor.setVelocity(leftSpeed)
                 rightMotor.setVelocity(rightSpeed)
                 
               
-            if OtherRobotArrival() == 1 and ArrivedAtBox() == 1:
+            if ArrivalDeclared == 1 and OtherRobotArrival() == 1:
                 #row = ["Blue: ", str(robot.getTime())]
                 #csvwriter.writerow(row)
-                if Colour == 2:
-                    with open('BlueTimes.csv', 'a') as the_file:
-                        the_file.writelines(str(robot.getTime()))
-                        the_file.writelines('\n')
+                
                 if ArrivedAtBox() == 1:  
                     f = open(ColourText + ".txt", "w")
                     f.write("1")    
                 #Field Position_trans_field = robot.getField("translation")
                 #print(Position_trans_field)
                 
-                leftMotor.setVelocity(0.5*MAX_SPEED)
-                rightMotor.setVelocity(0.5*MAX_SPEED)
+                leftMotor.setVelocity(MovingSpeed * MAX_SPEED)
+                rightMotor.setVelocity(MovingSpeed * MAX_SPEED)
                 state = 3
                 
                 #reset = 1
@@ -508,8 +528,8 @@ while robot.step(TIME_STEP) != -1:
         #print("Colour: ", Colour)
         if PrintStats == 1:
             print("State: 3, Colour--: ", ColourText, ", ", ArrivedAtBox())
-            for p in range(len(camera.getImageArray())):
-                print(p, " - ", IsPixelBox(p), " ", camera.getImageArray()[p][0])
+            for p in range(len(image)):
+                print(p, " - ", IsPixelBox(p), " ", image[p][0])
         FaceBox2()
         if BoxInFrame() == 0:
             f = open(ColourText + ".txt", "w")

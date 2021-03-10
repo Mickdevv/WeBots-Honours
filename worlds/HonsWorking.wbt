@@ -6,8 +6,8 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation -0.19994136549950559 -0.9231924907068428 -0.32823631039951806 2.1354975303978345
-  position -5.790655882121776 5.316418557017507 -3.454253730855883
+  orientation -0.1606762207777745 -0.9176539274502225 -0.3634479625912814 2.387498933771547
+  position -2.5148692089613807 3.0912765964961495 -3.0198007423022277
 }
 TexturedBackground {
 }
@@ -18,35 +18,35 @@ Floor {
   tileSize 1 1
 }
 DEF Red E-puck {
-  translation -2.02511 -0.0144646 0.389162
-  rotation -0.0011725603646944916 0.9999963110229181 -0.0024501107620434103 -1.2124753071795862
+  translation 1.05966 -0.00450292 1.47368
+  rotation -0.0014489795355156706 0.9999986794408031 -0.0007359177640944811 -2.5214653071795863
   name "e-puck_Red"
   controller "epuck_avoid_collision_Red"
-  camera_fieldOfView 1
-  camera_width 7
+  camera_fieldOfView 1.6
+  camera_width 9
   camera_height 1
 }
 DEF Green E-puck {
-  translation -1.91843 -0.0142203 -0.21702
-  rotation -0.0017660296370824308 0.9999977945013147 -0.001136719766405067 -1.6577053071795866
+  translation -0.268046 -0.00964156 0.65711
+  rotation -0.0013590304288030085 0.9999983155207398 0.0012336903892555598 2.00749
   name "e-puck_Green"
   controller "epuck_avoid_collision_Green"
-  camera_fieldOfView 1
-  camera_width 7
+  camera_fieldOfView 1.6
+  camera_width 9
   camera_height 1
 }
 DEF Blue E-puck {
-  translation -1.98176 -0.0145385 -0.665613
-  rotation -0.0015378201886865103 0.9999981226971512 -0.0011788601446430529 -1.8325953071795862
+  translation -0.17746 -0.0089891 -1.76771
+  rotation 0.00047117582540420495 0.0007204857330215758 0.9999996294467565 0.00307453
   name "e-puck_Blue"
   controller "epuck_avoid_collision_Blue"
-  camera_fieldOfView 1
-  camera_width 7
+  camera_fieldOfView 1.6
+  camera_width 9
   camera_height 1
 }
 DEF Supervisor Robot {
-  translation -0.77491 0.0487398 -0.222411
-  rotation 0.5772210905117502 0.5774143327793888 -0.5774153626024849 -2.0945878151302804
+  translation 0.3 0.149936 -0.2
+  rotation -0.5772209286286568 -0.5774139286047931 0.5774159286045458 2.09459
   scale 2 2 2
   children [
     TexturedBoxShape {
@@ -72,7 +72,7 @@ DEF Supervisor Robot {
     size 0.05 0.5 0.1
   }
   physics Physics {
-    density 20
+    density 3
   }
   controller "epuck_avoid_collision_Supervisor_Michael"
   supervisor TRUE
@@ -84,8 +84,8 @@ WoodenBox {
   size 0.1 0.1 0.1
   mass 0.1
 }
-Solid {
-  translation 0 0.025 1.49
+DEF EastWall Solid {
+  translation 0 0.025 0.99
   scale 6 6 6
   children [
     Shape {
@@ -101,8 +101,8 @@ Solid {
   name "Wall1"
   boundingObject USE Wall1
 }
-Solid {
-  translation 0 0.025 -2.01
+DEF WestWall Solid {
+  translation 0 0.025 -1.51
   scale 6 6 6
   children [
     Shape {
@@ -114,8 +114,8 @@ Solid {
   name "Wall2"
   boundingObject USE Wall1
 }
-Solid {
-  translation 3 0.025 -8.41769e-06
+DEF NorthWall Solid {
+  translation 2.7 0.025 -7.4076e-06
   rotation 0 1 0 1.5707996938995747
   scale 5 5 5
   children [
@@ -128,8 +128,8 @@ Solid {
   name "Wall3"
   boundingObject USE Wall1
 }
-Solid {
-  translation -3 0.025 8.41753e-06
+DEF SouthWall Solid {
+  translation -2.99 0.025 8.38393e-06
   rotation 0 1 0 1.5707996938995747
   scale 5 5 5
   children [
