@@ -22,8 +22,8 @@ DEF Red E-puck {
   rotation -0.0014489795355156706 0.9999986794408031 -0.0007359177640944811 -2.5214653071795863
   name "e-puck_Red"
   controller "epuck_avoid_collision_Red"
-  camera_fieldOfView 1.6
-  camera_width 9
+  camera_fieldOfView 1
+  camera_width 23
   camera_height 1
 }
 DEF Green E-puck {
@@ -31,8 +31,8 @@ DEF Green E-puck {
   rotation -0.0013590304288030085 0.9999983155207398 0.0012336903892555598 2.00749
   name "e-puck_Green"
   controller "epuck_avoid_collision_Green"
-  camera_fieldOfView 1.6
-  camera_width 9
+  camera_fieldOfView 1
+  camera_width 23
   camera_height 1
 }
 DEF Blue E-puck {
@@ -40,8 +40,8 @@ DEF Blue E-puck {
   rotation 0.00047117582540420495 0.0007204857330215758 0.9999996294467565 0.00307453
   name "e-puck_Blue"
   controller "epuck_avoid_collision_Blue"
-  camera_fieldOfView 1.6
-  camera_width 9
+  camera_fieldOfView 1
+  camera_width 23
   camera_height 1
 }
 DEF Supervisor Robot {

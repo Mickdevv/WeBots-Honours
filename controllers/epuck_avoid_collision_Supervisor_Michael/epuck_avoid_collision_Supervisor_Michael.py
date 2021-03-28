@@ -7,17 +7,25 @@ from controller import Robot, DistanceSensor, Motor, Supervisor, Node, Camera, F
 import numpy as np
 import deap, nnfs, os, time, csv, sys, random
 import pandas as pd
+import time
 
-numberOfRobots = 1
+start = time.time()
+
+numberOfRobots = 3
 
 TIME_STEP = 32
 
 SimulationTimeLimit = 600
 
+with open('Times.csv', 'a') as the_file:
+    writer = csv.writer(the_file)
+    writer.writerow("N")
+
 PositionsSet = 0
 
 Runs = 0
 times = []
+times2 = []
 
 supervisor = Supervisor()
 robot_node = supervisor.getFromDef("Supervisor")
@@ -49,6 +57,7 @@ trans_field_West_Wall = WestWallNode.getField("translation")
 
 
 startingPositionsPermanent = [
+[[1.81, 0.02, -0.14], [-0.48, 0.02, -0.58], [-2.4, 0.02, 0.02]], 
 [[-0.92, 0.02, -0.32], [-0.13, 0.02, -1.07], [2.11, 0.02, 0.28]], 
 [[-1.13, 0.02, -0.96], [-2.03, 0.02, -0.16], [-1.6, 0.02, 0.13]], 
 [[-1.02, 0.02, -0.57], [-1.34, 0.02, -0.06], [-2.34, 0.02, -1.15]],
@@ -58,10 +67,9 @@ startingPositionsPermanent = [
 [[1.41, 0.02, 0.53], [-0.4, 0.02, -0.72], [-0.72, 0.02, -0.72]], 
 [[0.74, 0.02, -0.71], [1.89, 0.02, -0.33], [-0.7, 0.02, -0.38]], 
 [[-0.83, 0.02, 0.2], [-1.44, 0.02, 0.15], [-0.7, 0.02, 0.18]], 
-[[1.81, 0.02, -0.14], [-0.48, 0.02, -0.58], [-2.4, 0.02, 0.02]], 
 [[1.67, 0.02, -0.41], [-0.09, 0.02, 0.4], [-1.5, 0.02, -0.98]],
 [[-0.51, 0.02, -0.05], [-0.14, 0.02, -0.8], [-1.58, 0.02, -0.96]], 
-[[-0.46, 0.02, -0.26], [-1.27, 0.02, 0.53], [2.42, 0.02, 0.49]], 
+[[-2, 0.02, -0.26], [-2, 0.02, 0.53], [-2.42, 0.02, 0.49]], 
 [[-0.72, 0.02, -0.47], [-0.54, 0.02, -0.43], [-2.29, 0.02, 0.02]], 
 [[0.94, 0.02, -0.83], [-2.34, 0.02, -0.67], [2.48, 0.02, -1.1]], 
 [[1.34, 0.02, -1.15], [-1.3, 0.02, -0.72], [-2.41, 0.02, -0.78]]]
@@ -71,6 +79,7 @@ startingPositionsGenerated = []
 
 reset = 0
 TimeToRecord = 0
+TimeToRecord2 = 0
 
 Colours = ["Red", "Green", "Blue"]
 TooCloseDistance = 0.1
@@ -219,7 +228,7 @@ def avg(lst):
     
     return avg
 # ---------------------------------------------------------- 
-while supervisor.step(TIME_STEP) != -1 and Runs < 15:
+while supervisor.step(TIME_STEP) != -1 and Runs < len(startingPositionsPermanent):
     
     if len(times) > 0:
         if times[0] == 0:
@@ -253,25 +262,31 @@ while supervisor.step(TIME_STEP) != -1 and Runs < 15:
             
     
             #print(trans_field.getSFVec3f())
+    if trans_field.getSFVec3f()[0] > 0.31 and TimeToRecord2 == 0:
+        TimeToRecord2 = round(supervisor.getTime(), 2)
+        
     if trans_field.getSFVec3f()[0] > 2.5:
         TimeToRecord = round(supervisor.getTime(), 2)
         reset = 1
     elif supervisor.getTime() > SimulationTimeLimit:
-        TimeToRecord = "DNF"
+        TimeToRecord = -1
         reset = 1
                 
 
         
             #if trans_field.getSFVec3f()[0] > 2.5 or supervisor.getTime() > SimulationTimeLimit:
         
-    if reset == 1:            
-        with open('Times.csv', 'a') as the_file:
-            the_file.writelines(str(TimeToRecord))
-            the_file.writelines('\n')
-            print("Time recorded: ", TimeToRecord)
-            if TimeToRecord != "DNF":
-                times.append(TimeToRecord)
+    if reset == 1:   
+        print("Push time: ", round(TimeToRecord - TimeToRecord2, 2))  
+        times.append([TimeToRecord, TimeToRecord2])
+
                 
+        with open('Times.csv', 'a') as the_file:
+            writer = csv.writer(the_file)
+            writer.writerow(times[Runs])
+            print("Times recorded: ", TimeToRecord2, ", ", TimeToRecord)
+            
+        TimeToRecord2 = 0        
         timeRecorded = 1
         supervisor.simulationReset()
         Node.restartController(supervisor.getFromDef("Red"))
@@ -280,10 +295,10 @@ while supervisor.step(TIME_STEP) != -1 and Runs < 15:
         PositionsSet = 0
         Runs +=1
         if len(times) >= 1:
-            print("Runs completed: ", Runs, " | Average: ", round(avg(times), 3))
+            print("Runs completed: ", Runs, "/", len(startingPositionsPermanent))
             #print(times)
         reset = 0
-            #print(times)
-            
-            #supervisor.worldReload()
-        
+        end = time.time()
+        print("Time elapsed: ", round(end - start, 2))
+    
+

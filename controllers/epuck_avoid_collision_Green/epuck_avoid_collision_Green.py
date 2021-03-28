@@ -8,7 +8,7 @@ Colour = 0
 PrintStats = 0
 pixelCountSet = 15
 shortenCamera = 0
-numberOfRobots = 1
+numberOfRobots = 3
 # time in [ms] of a simulation step
 TIME_STEP = 32
 
