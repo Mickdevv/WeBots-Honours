@@ -1,4 +1,4 @@
-#VRML_SIM R2020b utf8
+#VRML_SIM R2021a utf8
 WorldInfo {
   physics "my_physics"
   basicTimeStep 16
@@ -6,8 +6,8 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation -0.1606762207777745 -0.9176539274502225 -0.3634479625912814 2.387498933771547
-  position -2.5148692089613807 3.0912765964961495 -3.0198007423022277
+  orientation -0.08154129810310143 -0.8961981834498249 -0.4360961278031428 2.8234843517481947
+  position -0.9686420551396001 3.7219814160996814 -2.9337382572637267
 }
 TexturedBackground {
 }
@@ -19,29 +19,29 @@ Floor {
 }
 DEF Red E-puck {
   translation 1.05966 -0.00450292 1.47368
-  rotation -0.0014489795355156706 0.9999986794408031 -0.0007359177640944811 -2.5214653071795863
+  rotation 0.0012565304388920777 -0.9999973492879286 0.0019293906739146582 1.47427
   name "e-puck_Red"
   controller "epuck_avoid_collision_Red"
-  camera_fieldOfView 1
-  camera_width 23
+  camera_fieldOfView 1.6
+  camera_width 13
   camera_height 1
 }
 DEF Green E-puck {
   translation -0.268046 -0.00964156 0.65711
-  rotation -0.0013590304288030085 0.9999983155207398 0.0012336903892555598 2.00749
+  rotation -0.0017660296370824308 0.9999977945013147 -0.001136719766405067 -1.6577053071795866
   name "e-puck_Green"
   controller "epuck_avoid_collision_Green"
-  camera_fieldOfView 1
-  camera_width 23
+  camera_fieldOfView 1.6
+  camera_width 13
   camera_height 1
 }
 DEF Blue E-puck {
   translation -0.17746 -0.0089891 -1.76771
-  rotation 0.00047117582540420495 0.0007204857330215758 0.9999996294467565 0.00307453
+  rotation -0.0015379894414235516 0.9999976368147185 -0.0015365394419501715 -1.5707953071795862
   name "e-puck_Blue"
   controller "epuck_avoid_collision_Blue"
-  camera_fieldOfView 1
-  camera_width 23
+  camera_fieldOfView 1.6
+  camera_width 13
   camera_height 1
 }
 DEF Supervisor Robot {
@@ -52,7 +52,7 @@ DEF Supervisor Robot {
     TexturedBoxShape {
       size 0.05 0.5 0.1
       textureUrl [
-        "E:/Uni/Webots/projects/samples/geometries/worlds/textures/RGB.png"
+        "textures/copper/RGB.png"
       ]
       textureTransform TextureTransform {
         scale 1.1 0.01
@@ -74,7 +74,7 @@ DEF Supervisor Robot {
   physics Physics {
     density 3
   }
-  controller "epuck_avoid_collision_Supervisor_Michael"
+  controller "epuck_avoid_collision_Supervisor_NN"
   supervisor TRUE
 }
 WoodenBox {
