@@ -2,12 +2,26 @@
 
 # You may need to import some classes of the controller module. Ex:
 #  from controller import Robot, Motor, DistanceSensor
+
 import math
 from controller import Robot, DistanceSensor, Motor, Supervisor, Node, Camera, Field, GPS
 import numpy as np
 import deap, nnfs, os, time, csv, sys, random
 import pandas as pd
 import time
+import sklearn
+import keras
+import tensorflow as tf
+
+from numpy import random
+from tensorflow import keras
+from tensorflow.keras import layers
+from keras.models import Sequential
+from keras.layers import Dense
+
+print("Started")
+
+numberOfRobots = 3
 
 start = time.time()
 
@@ -133,14 +147,11 @@ def GenerateStartingPositions():
             #Generate random position
             X = round(random.uniform(trans_field_South_Wall.getSFVec3f()[0] + TooCloseDistance, trans_field_North_Wall.getSFVec3f()[0] - TooCloseDistance), 2)
             Z = round(random.uniform(trans_field_West_Wall.getSFVec3f()[2] + TooCloseDistance, trans_field_East_Wall.getSFVec3f()[2] - TooCloseDistance), 2)
-            # for i in range(len(StartingPositionsZ)):
-                # if Z - StartingPositionsZ[i] < TooCloseDistance and X - StartingPositionsZ[i] > -TooCloseDistance:
-                    # tooClose = 1
+
             for i in range(len(StartingPositionsX)):
                     if DistanceBetween([X, Z], [StartingPositionsX[i], StartingPositionsZ[i]]) < TooCloseDistance:
                         tooClose = 1
-                        
-            #If the position is invalid, generate random positions until it is        
+                  
             while DistanceBetween([X, Z], [trans_field.getSFVec3f()[0], trans_field.getSFVec3f()[2]]) < 0.6 or tooClose == 1:
                 Z = round(random.uniform(trans_field_West_Wall.getSFVec3f()[2] + TooCloseDistance, trans_field_East_Wall.getSFVec3f()[2] - TooCloseDistance), 2)
                 X = round(random.uniform(trans_field_South_Wall.getSFVec3f()[0] + TooCloseDistance, trans_field_North_Wall.getSFVec3f()[0] - TooCloseDistance), 2)
@@ -169,29 +180,20 @@ def setRandomPositions():
     
     for j in range(3):
         
-        #Generate random position
         X = round(random.uniform(trans_field_South_Wall.getSFVec3f()[0] + TooCloseDistance, trans_field_North_Wall.getSFVec3f()[0] - TooCloseDistance), 2)
         Z = round(random.uniform(trans_field_West_Wall.getSFVec3f()[2] + TooCloseDistance, trans_field_East_Wall.getSFVec3f()[2] - TooCloseDistance), 2)
-        # for i in range(len(StartingPositionsZ)):
-            # if Z - StartingPositionsZ[i] < TooCloseDistance and X - StartingPositionsZ[i] > -TooCloseDistance:
-                # tooClose = 1
+
         for i in range(len(StartingPositionsX)):
                 if DistanceBetween([X, Z], [StartingPositionsX[i], StartingPositionsZ[i]]) < TooCloseDistance:
                     tooClose = 1
-                    
-        #If the position is invalid, generate random positions until it is        
+                        
         while DistanceBetween([X, Z], [trans_field.getSFVec3f()[0], trans_field.getSFVec3f()[2]]) < 0.6 or tooClose == 1:
             Z = round(random.uniform(trans_field_West_Wall.getSFVec3f()[2] + TooCloseDistance, trans_field_East_Wall.getSFVec3f()[2] - TooCloseDistance), 2)
             X = round(random.uniform(trans_field_South_Wall.getSFVec3f()[0] + TooCloseDistance, trans_field_North_Wall.getSFVec3f()[0] - TooCloseDistance), 2)
             for i in range(len(StartingPositionsX)):
                 if DistanceBetween([X, Z], [StartingPositionsX[i], StartingPositionsZ[i]]) < TooCloseDistance:
                     tooClose = 1
-            
-            # for i in range(len(StartingPositionsX)):
-                # if X - StartingPositionsX[i] < TooCloseDistance and X - StartingPositionsX[i] > -TooCloseDistance:
-                    # tooClose = 1
-                    
-                        
+
         StartingPositionsX.append(X)
         StartingPositionsZ.append(Z)
     
@@ -200,8 +202,7 @@ def setRandomPositions():
     trans_field_Blue.setSFVec3f([StartingPositionsX[2], StartingHeight, StartingPositionsZ[2]])
 
     return [[StartingPositionsX[0], StartingHeight, StartingPositionsZ[0]], [StartingPositionsX[1], StartingHeight, StartingPositionsZ[1]], [StartingPositionsX[2], StartingHeight, StartingPositionsZ[2]]]
-    #print(StartingPositionsX)
-    #print(StartingPositionsZ)
+
 # ----------------------------------------------------------   
 def RobotsArrivedAtBox():
     checkRed = 0
@@ -249,81 +250,45 @@ def avg(lst):
     
     return avg
 # ---------------------------------------------------------- 
-while supervisor.step(TIME_STEP) != -1 and Runs < len(startingPositionsPermanent):
+def evaluate():
     
-    if len(times) > 0:
-        if times[0] == 0:
-            times.remove(0)
-            runs = 0
-    if PositionsSet == 0:
-        print("Starting positions:")
-        print([startingPositionsPermanent[Runs][0][0], startingPositionsPermanent[Runs][0][1], startingPositionsPermanent[Runs][0][2]])
-        print([startingPositionsPermanent[Runs][1][0], startingPositionsPermanent[Runs][1][1], startingPositionsPermanent[Runs][1][2]])
-        print([startingPositionsPermanent[Runs][2][0], startingPositionsPermanent[Runs][2][1], startingPositionsPermanent[Runs][2][2]])
-        #startingPositionsGenerated = GenerateStartingPositions()
-        #print(startingPositionsGenerated)
-        #print(GenerateStartingPositions())
-        coeff = 1
-        if numberOfRobots == 1:
-            trans_field_Green.setSFVec3f([startingPositionsPermanent[Runs][1][0], startingPositionsPermanent[Runs][1][1], startingPositionsPermanent[Runs][1][2]])
-            
-        if numberOfRobots == 2:
-            trans_field_Red.setSFVec3f([startingPositionsPermanent[Runs][0][0], startingPositionsPermanent[Runs][0][1], startingPositionsPermanent[Runs][0][2]])
-            trans_field_Blue.setSFVec3f([startingPositionsPermanent[Runs][2][0], startingPositionsPermanent[Runs][2][1], startingPositionsPermanent[Runs][2][2]])
-        
-        elif numberOfRobots == 3:
-            trans_field_Red.setSFVec3f([startingPositionsPermanent[Runs][0][0], startingPositionsPermanent[Runs][0][1], startingPositionsPermanent[Runs][0][2]])
-            trans_field_Green.setSFVec3f([startingPositionsPermanent[Runs][1][0], startingPositionsPermanent[Runs][1][1], startingPositionsPermanent[Runs][1][2]])
-            trans_field_Blue.setSFVec3f([startingPositionsPermanent[Runs][2][0], startingPositionsPermanent[Runs][2][1], startingPositionsPermanent[Runs][2][2]])
-            #robot_node_Red.getField("rotation").setSFRotation([0,-coeff,0])
-            #robot_node_Blue.getField("rotation").setSFRotation([0,-coeff,0])
-            #robot_node_Green.getField("rotation").setSFRotation([0,-coeff,0])
-            #startingPositionsPermanent.append(setRandomPositions())
-        #print(startingPositionsPermanent)
-        #for i in range(len(startingPositionsPermanent)):
-            #print(startingPositionsPermanent[i])
-            
-        PositionsSet = 1.5
-            
     
-            #print(trans_field.getSFVec3f())
-    if trans_field.getSFVec3f()[0] > 0.31 and TimeToRecord2 == 0:
-        TimeToRecord2 = round(supervisor.getTime(), 2)
-        
-    if trans_field.getSFVec3f()[0] > 2.5:
-        TimeToRecord = round(supervisor.getTime(), 2)
-        reset = 1
-    elif supervisor.getTime() > SimulationTimeLimit:
-        TimeToRecord = -1
-        reset = 1
-                
+    reset = 0
+    PositionsSet = 0
+    Runs = 0
+    times = []
+    times2 = []
+    numberOfRobots = 3
+    supervisor.simulationReset()
+    Node.restartController(supervisor.getFromDef("Red"))
+    Node.restartController(supervisor.getFromDef("Green"))
+    Node.restartController(supervisor.getFromDef("Blue"))
+    print("Starting positions:")
+    print([startingPositionsPermanent[0][0][0], startingPositionsPermanent[0][0][1], startingPositionsPermanent[0][0][2]])
+    print([startingPositionsPermanent[0][1][0], startingPositionsPermanent[0][1][1], startingPositionsPermanent[0][1][2]])
+    print([startingPositionsPermanent[0][2][0], startingPositionsPermanent[0][2][1], startingPositionsPermanent[0][2][2]])
 
+    trans_field_Red.setSFVec3f([startingPositionsPermanent[0][0][0], startingPositionsPermanent[0][0][1], startingPositionsPermanent[0][0][2]])
+    trans_field_Green.setSFVec3f([startingPositionsPermanent[0][1][0], startingPositionsPermanent[0][1][1], startingPositionsPermanent[0][1][2]])
+    trans_field_Blue.setSFVec3f([startingPositionsPermanent[0][2][0], startingPositionsPermanent[0][2][1], startingPositionsPermanent[0][2][2]])
         
-            #if trans_field.getSFVec3f()[0] > 2.5 or supervisor.getTime() > SimulationTimeLimit:
-        
-    if reset == 1:   
-        print("Push time: ", round(TimeToRecord - TimeToRecord2, 2))  
-        times.append([TimeToRecord, TimeToRecord2])
-
+    while reset == 0:
+        supervisor.step(TIME_STEP)
+        #print(2)
+        #if trans_field.getSFVec3f()[0] > 0.31 and TimeToRecord2 == 0:
+            #TimeToRecord2 = round(supervisor.getTime(), 2)
                 
-        with open('Times.csv', 'a') as the_file:
-            writer = csv.writer(the_file)
-            writer.writerow(times[Runs])
-            print("Times recorded: ", TimeToRecord2, ", ", TimeToRecord)
-            
-        TimeToRecord2 = 0        
-        timeRecorded = 1
-        supervisor.simulationReset()
-        Node.restartController(supervisor.getFromDef("Red"))
-        Node.restartController(supervisor.getFromDef("Green"))
-        Node.restartController(supervisor.getFromDef("Blue"))
-        PositionsSet = 0
-        Runs +=1
-        if len(times) >= 1:
-            print("Runs completed: ", Runs, "/", len(startingPositionsPermanent))
-            #print(times)
-        reset = 0
-        end = time.time()
-        print("Time elapsed: ", round(end - start, 2))
+        if trans_field.getSFVec3f()[0] > 1.5 or supervisor.getTime() > SimulationTimeLimit:
+            TimeToRecord = round(supervisor.getTime(), 2)
+            return(TimeToRecord)
+            reset = 1
+
+           
+# ---------------------------------------------------------- 
+while supervisor.step(TIME_STEP) != -1:
+    print(1)
+    print(evaluate())
+    
+    
     
 

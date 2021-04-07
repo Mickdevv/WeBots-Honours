@@ -229,7 +229,10 @@ def avg(lst):
     return avg
 # ---------------------------------------------------------- 
 while supervisor.step(TIME_STEP) != -1 and Runs < len(startingPositionsPermanent):
-    
+    #supervisor.simulationReset()
+    Node.restartController(supervisor.getFromDef("Red"))
+    Node.restartController(supervisor.getFromDef("Green"))
+    Node.restartController(supervisor.getFromDef("Blue"))
     if len(times) > 0:
         if times[0] == 0:
             times.remove(0)
@@ -288,10 +291,7 @@ while supervisor.step(TIME_STEP) != -1 and Runs < len(startingPositionsPermanent
             
         TimeToRecord2 = 0        
         timeRecorded = 1
-        supervisor.simulationReset()
-        Node.restartController(supervisor.getFromDef("Red"))
-        Node.restartController(supervisor.getFromDef("Green"))
-        Node.restartController(supervisor.getFromDef("Blue"))
+        
         PositionsSet = 0
         Runs +=1
         if len(times) >= 1:
