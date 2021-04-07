@@ -6,9 +6,11 @@
 import math
 from controller import Robot, DistanceSensor, Motor, Supervisor, Node, Camera, Field, GPS
 import numpy as np
-import deap, nnfs, os, time, csv, sys, random
+import deap, nnfs, os, time, csv, sys
 import pandas as pd
 import time
+from random import seed
+from random import random
 import sklearn
 import keras
 import tensorflow as tf
@@ -20,6 +22,11 @@ from keras.models import Sequential
 from keras.layers import Dense
 
 print("Started")
+
+numGenes = 20
+geneLimit = 5.0
+populationLimit = 20
+pop = []
 
 numberOfRobots = 3
 
@@ -285,9 +292,25 @@ def evaluate():
 
            
 # ---------------------------------------------------------- 
+def generateIndividual():
+    individual = []
+    for i in range(numGenes):
+        gene = random.uniform(-geneLimit, geneLimit)
+        individual.append(gene)
+    return individual
+# ---------------------------------------------------------- 
+def generatePopulation():
+    population = []
+    for i in range(populationLimit):
+        population.append(generateIndividual())
+    return population
+# ---------------------------------------------------------- 
 while supervisor.step(TIME_STEP) != -1:
-    print(1)
-    print(evaluate())
+    
+    pop = generatePopulation()
+    print(pop)
+    print("--")
+    print("--")
     
     
     
