@@ -14,6 +14,10 @@ from random import random
 import sklearn
 import keras
 import tensorflow as tf
+from deap import algorithms
+from deap import base
+from deap import creator
+from deap import tools
 
 from numpy import random
 from tensorflow import keras
@@ -23,11 +27,6 @@ from keras.layers import Dense
 
 print("Started")
 
-numGenes = 20
-geneLimit = 5.0
-populationLimit = 20
-pop = []
-
 numberOfRobots = 3
 
 start = time.time()
@@ -36,7 +35,7 @@ numberOfRobots = 3
 
 TIME_STEP = 32
 
-SimulationTimeLimit = 600
+SimulationTimeLimit = 120
 
 with open('Times.csv', 'a') as the_file:
     writer = csv.writer(the_file)
@@ -125,9 +124,8 @@ TimeToRecord2 = 0
 
 Colours = ["Red", "Green", "Blue"]
 TooCloseDistance = 0.1
-
-
 #-----------------------------------------------------------
+
 
 def DistanceBetween(p1, p2):
     Distance = 0.0
@@ -256,10 +254,27 @@ def avg(lst):
     avg = sum(lst)/len(lst)
     
     return avg
+# ----------------------------------------------------------
+#def robotsReady():
 # ---------------------------------------------------------- 
-def evaluate():
+def evaluate(individual):
+
+    file = "..\\epuck_avoid_collision_Green_NN\cNN.csv"
+    if os.path.exists(file):
+        os.remove(file)
+        
+    floatList = []
+    for i in range(len(individual)):
+        floatList.append(float(individual[i]))
+        
+    with open("..\\epuck_avoid_collision_Green_NN\cNN.csv", "w") as file:
+        writer = csv.writer(file)
+        writer.writerow(individual)
     
-    
+    #while not robotsReady(): 
+        #supervisor.step(TIME_STEP) 
+        
+    startEvaluation = supervisor.getTime()  
     reset = 0
     PositionsSet = 0
     Runs = 0
@@ -286,7 +301,7 @@ def evaluate():
             #TimeToRecord2 = round(supervisor.getTime(), 2)
                 
         if trans_field.getSFVec3f()[0] > 1.5 or supervisor.getTime() > SimulationTimeLimit:
-            TimeToRecord = round(supervisor.getTime(), 2)
+            TimeToRecord = round(startEvaluation - supervisor.getTime(), 2)
             return(TimeToRecord)
             reset = 1
 
@@ -294,6 +309,7 @@ def evaluate():
 # ---------------------------------------------------------- 
 def generateIndividual():
     individual = []
+    #individual.append(0)
     for i in range(numGenes):
         gene = random.uniform(-geneLimit, geneLimit)
         individual.append(gene)
@@ -305,12 +321,50 @@ def generatePopulation():
         population.append(generateIndividual())
     return population
 # ---------------------------------------------------------- 
+def mutate(individual):
+    for i in range(len(individual)):
+        randomNumber = random.uniform(0,200)
+        if (randomNumber < mutateProbability):
+            individual[i] += mutateChange
+        elif (randomNumber > mutateProbability and randomNumber < (mutateProbability*2)):
+            individual[i] -= mutateChange
+    return individual
+# ---------------------------------------------------------- 
+
+#EA stuff
+generationNum = 20
+numGenes = 157
+geneLimit = 5.0
+populationLimit = 20
+pop = []
+
+mutateProbability = 20
+mutateChange = 0.2
+
+# define the fitness class and create an individual class
+creator.create("FitnessMin", base.Fitness, weights=(1.0,))
+creator.create("Individual", list, fitness=creator.FitnessMin)
+# create a toolbox
+toolbox = base.Toolbox()
+# USE THIS LINE IF YOU WANT TO USE THE CUSTOM INIT FUNCTION
+toolbox.register("individual", generateIndividual, creator.Individual, populationLimit)
+#  a population consist of a list of individuals
+toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+
+# register all operators we need with the toolbox
+toolbox.register("evaluate", evaluate)
+toolbox.register("mate", tools.cxTwoPoint)
+toolbox.register("mutate", mutate)
+toolbox.register("select", tools.selTournament, tournsize=2)
+
+#-----------------------------------------------------------
 while supervisor.step(TIME_STEP) != -1:
     
+    
     pop = generatePopulation()
-    print(pop)
-    print("--")
-    print("--")
+    print(evaluate(pop[0]))
+        
+    #print(pop)
     
     
     

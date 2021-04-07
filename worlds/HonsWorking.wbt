@@ -7,7 +7,7 @@ WorldInfo {
 }
 Viewpoint {
   orientation -0.1104608076234966 -0.9257128021655949 -0.3617377750330853 2.6074101527634563
-  position -3.5950228544164142 5.741136759974045 -5.412267071083127
+  position -3.6785945845412167 5.428473913349155 -4.74356445519082
 }
 TexturedBackground {
 }
@@ -18,7 +18,7 @@ Floor {
   tileSize 1 1
 }
 DEF Red E-puck {
-  translation 0.768759 3.8637e-05 -0.601474
+  translation -0.799581 0.000599907 -0.863067
   rotation 0.0001937579944908038 0.9999999715666129 0.00013901299604738958 -1.7360953071795864
   name "e-puck_Red"
   controller "epuck_avoid_collision_Red"
@@ -27,17 +27,17 @@ DEF Red E-puck {
   camera_height 1
 }
 DEF Green E-puck {
-  translation 0.839507 -0.000815713 0.0710674
+  translation -0.953693 0.000627757 -0.0852072
   rotation 0.00036449284227230014 0.9999998520623362 0.000403757691809424 -1.6577251282785397
   name "e-puck_Green"
-  controller "epuck_avoid_collision_Green"
+  controller "epuck_avoid_collision_Green_NN"
   camera_fieldOfView 1.6
   camera_width 13
   camera_height 1
 }
 DEF Blue E-puck {
   translation -1.06514 0.000592146 0.712284
-  rotation 0.00034492405810625145 0.9999991684608591 -0.001242620209333042 0.523576
+  rotation 0.00032984295042791243 0.9999998497100512 0.0004379309341833724 -1.3090153071795863
   name "e-puck_Blue"
   controller "epuck_avoid_collision_Blue"
   camera_fieldOfView 1.6
@@ -78,7 +78,7 @@ DEF Supervisor Robot {
   supervisor TRUE
 }
 WoodenBox {
-  translation -1.47 0.0499804 0.28
+  translation -1.47 0.0499804 1.28
   rotation -0.7072167786797204 -0.0012455251649402257 0.7069956694499214 2.790887379052463e-14
   name "wooden box(1)"
   size 0.1 0.1 0.1
@@ -92,21 +92,21 @@ WoodenBox {
   mass 0.1
 }
 WoodenBox {
-  translation 1.35 0.0499804 0.7
+  translation 1.35 0.0499804 1.63
   rotation -0.5329974485636608 -0.8427111673905248 0.07583935772359142 4.264079817125256e-17
   name "wooden box(3)"
   size 0.1 0.1 0.1
   mass 0.1
 }
 WoodenBox {
-  translation -0.49 0.0499804 -0.48
+  translation -0.49 0.0499804 1.29
   rotation -0.5329974485636608 -0.8427111673905248 0.07583935772359142 4.264079817125256e-17
   name "wooden box(4)"
   size 0.1 0.1 0.1
   mass 0.1
 }
 WoodenBox {
-  translation -0.09 0.0499804 -1.09
+  translation -0.09 0.0499804 -1.72
   rotation -0.5329974485636608 -0.8427111673905248 0.07583935772359142 4.264079817125256e-17
   name "wooden box(5)"
   size 0.1 0.1 0.1

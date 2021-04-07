@@ -3,6 +3,13 @@ from controller import Robot, DistanceSensor, Motor, Supervisor, Node, Camera, F
 import numpy as np
 import deap, nnfs, os, time, csv, sys, random
 import pandas as pd
+import tensorflow
+import keras
+from keras.models import Sequential
+from keras.layers import Dense
+from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import OneHotEncoder
+
 
 Colour = 0
 PrintStats = 0
@@ -16,6 +23,8 @@ MAX_SPEED = 6.28
 
 TurningSpeed = 0.5
 MovingSpeed = 1
+leftSpeed = 0
+rightSpeed = 0
 
 ##Bigger the number, the closer it will get to obstacles
 DistanceValue = 78
@@ -25,15 +34,68 @@ camera = Camera("camera")
 camera.enable(100)
 
 
+with open('cNN.csv', newline='') as f:
+    reader = csv.reader(f)
+    data = list(reader)
+
+NNList = []
+data = data[0]
+for i in range(len(data)):
+    NNList.append(float(data[i]))
+#print(NNList)
+
+# Neural network
+model = Sequential()
+model.add(Dense(5, input_dim=22, activation="relu"))
+model.add(Dense(5, activation="relu"))
+model.add(Dense(2, activation="softmax"))
+model.summary()
+
+#print("1, ", model.layers[0].get_weights())
+
+print(2)
+myWeightsL1 = NNList[0:110]
+myWeightsL2 = NNList[110:135]
+myWeightsL3 = NNList[135:145]
+print(3)
+myBiasesL1 = NNList[145:150]
+myBiasesL2 = NNList[150:155]
+myBiasesL3 = NNList[155:157]
+print(4)
+weights_1 = np.reshape(myWeightsL1, (22, 5))
+weights_2 = np.reshape(myWeightsL2, (5, 5))
+weights_3 = np.reshape(myWeightsL3, (5, 2))
+print(5)
+newdata_layer1 = np.array([weights_1, myBiasesL1])
+newdata_layer2 = np.array([weights_2, myBiasesL2])
+newdata_layer3 = np.array([weights_3, myBiasesL3])
+print(6)
+print(newdata_layer1)
+print(model.layers[0].get_weights())
+print(7)
+model.layers[0].set_weights(newdata_layer1)
+model.layers[1].set_weights(newdata_layer2)
+model.layers[2].set_weights(newdata_layer3)
+
+print(len(NNList))
+
+weightCount = 0
+for layers in model.layers:
+    weightCount += len(layers.get_weights())
+    #print(len(layers.get_weights()))
+print("=======================")
+print("2, ", model.layers[0].get_weights()[0])
+#print(weightCount)
+
 #print(robot.getDevice(robot.getName()))
 
 #gps = GPS("gps")
 #gps.enable(100)
+    
 # initialize devices
 ps = []
-psNames = [
-    'ps0', 'ps1', 'ps2', 'ps3',
-    'ps4', 'ps5', 'ps6', 'ps7'
+psNames = ['ps0', 'ps1', 'ps2', 'ps3',
+           'ps4', 'ps5', 'ps6', 'ps7'
 ]
 
 state = 0
@@ -60,8 +122,10 @@ state = 0
 boxFound = False
 
 for i in range(8):
+    #print(i)
     ps.append(robot.getDistanceSensor(psNames[i]))
     ps[i].enable(TIME_STEP)
+    
 
 leftMotor = robot.getMotor('left wheel motor')
 rightMotor = robot.getMotor('right wheel motor')
@@ -361,11 +425,16 @@ def BoxInFrame():
 # ----------------------------------------------------------   
 
 
+
+
 # feedback loop: step simulation until receiving an exit event
 while robot.step(TIME_STEP) != -1:
     # read sensors outputs
       
-    
+    image = camera.getImageArray()
+    PixelCount = int(len(image))
+    middlePixelIndex = int((PixelCount - 1)/2)
+
     if PrintStats == 1:
         image = camera.getImageArray()
         while len(image) > pixelCountSet:
@@ -416,127 +485,57 @@ while robot.step(TIME_STEP) != -1:
         psValuesAverage7.append(psValues[7])
     else:
         psValuesAverage7 = [avg(psValuesAverage7)]
-
-        
+  
         
     # detect obstacles
-    right_obstacle = avg(psValuesAverage0) > DistanceValue or avg(psValuesAverage1) > DistanceValue or avg(psValuesAverage2) > DistanceValue
-    left_obstacle = avg(psValuesAverage5) > DistanceValue or avg(psValuesAverage6) > DistanceValue or avg(psValuesAverage7) > DistanceValue
-    
+    #right_obstacle = avg(psValuesAverage0) > DistanceValue or avg(psValuesAverage1) > DistanceValue or avg(psValuesAverage2) > DistanceValue
+    #left_obstacle = avg(psValuesAverage5) > DistanceValue or avg(psValuesAverage6) > DistanceValue or avg(psValuesAverage7) > DistanceValue
 
     
-    image = camera.getImageArray()
-    if shortenCamera == 1:
-        while len(image) > pixelCountSet:
-            image.pop(len(image)-1)
-            image.pop(0)
-        
-    PixelCount = int(len(image))
-    middlePixelIndex = int((PixelCount - 1)/2)
-    
-    boxFound = 0
-    for p in range(PixelCount):
-        if PrintStats == 1:
-            print(p, " - ", IsPixelBox(p), " ", image[p][0])
-        if IsPixelBox(p) == 1:
-            boxFound = 1    
-    
-    if state == 0 and ArrivalDeclared == 0:
-        Explore()
-        if boxFound == 1:
-            state = 1
-            
-    
-        
-    elif state == 1:
-        if PrintStats == 1:
-            print(ColourText, " Box Found!!! ", OtherRobotArrival(), ", ", ArrivedAtBox())
-        #leftMotor.setVelocity(0)
-        #rightMotor.setVelocity(0)
-        if boxFound == 0:
-            state = 0
-        #state = 0
-        if (left_obstacle or right_obstacle) and ArrivalDeclared != 1:
-            Explore()
-        elif ArrivalDeclared == 0:
-            FaceBox2()
-        elif ArrivalDeclared == 1:
-            leftMotor.setVelocity(0)
-            rightMotor.setVelocity(0)
-            
-            
-        if ArrivedAtBox() == 1:  
-            f = open(ColourText + ".txt", "w")
-            f.write("1")
-            if ArrivalDeclared == 0:
-                ArrivalDeclared = 1
-                
-                #print("Green Box located, Awaiting further instructions")
-            #PrintStats = 0
+
+    if ArrivedAtBox() == 1:  
+        f = open(ColourText + ".txt", "w")
+        f.write("1")
+        if ArrivalDeclared == 0:
             ArrivalDeclared = 1
-            leftMotor.setVelocity(0)
-            rightMotor.setVelocity(0)
-            
-            fb = FaceBox3(avg(psValuesAverage0), avg(psValuesAverage7))
-            
-        if ArrivalDeclared == 1: 
-            #print("Green: ", fb)
-            if fb == 0:
-                if avg(psValuesAverage2) > 69:
-                    push = 1
-                else:
-                    leftMotor.setVelocity(0)
-                    rightMotor.setVelocity(0)
-            
-            if fb == 1:
-            
-                #print("fb = 1")
-                leftSpeed  = -TurningSpeed * MAX_SPEED
-                rightSpeed = TurningSpeed * MAX_SPEED
-                leftMotor.setVelocity(leftSpeed)
-                rightMotor.setVelocity(rightSpeed)
-                
-                        
-            if fb == 2:
-                #print("fb = 2")
-                leftSpeed  = TurningSpeed * MAX_SPEED
-                rightSpeed = -TurningSpeed * MAX_SPEED
-                leftMotor.setVelocity(leftSpeed)
-                rightMotor.setVelocity(rightSpeed)
-                
-              
-            if ArrivalDeclared == 1 and OtherRobotArrival() == 1:
-                #row = ["Blue: ", str(robot.getTime())]
-                #csvwriter.writerow(row)
-                
-                if ArrivedAtBox() == 1:  
-                    f = open(ColourText + ".txt", "w")
-                    f.write("1")    
-                #Field Position_trans_field = robot.getField("translation")
-                #print(Position_trans_field)
-                
-                leftMotor.setVelocity(MovingSpeed * MAX_SPEED)
-                rightMotor.setVelocity(MovingSpeed * MAX_SPEED)
-                state = 3
-                
-                #reset = 1
-                #state = 0
-                #if Colour == 2:
-                    #robot.simulationReset()
-
-    elif state == 3:
-        #print("Colour: ", Colour)
-        if PrintStats == 1:
-            print("State: 3, Colour--: ", ColourText, ", ", ArrivedAtBox())
-            for p in range(len(image)):
-                print(p, " - ", IsPixelBox(p), " ", image[p][0])
-        FaceBox2()
-        if BoxInFrame() == 0:
-            f = open(ColourText + ".txt", "w")
-            f.write("0")
-            state = 0
-        
-                   
+                       
     if PrintStats == 1:
         print("State: ", state, " | Camera reading: ", image, " | ", leftMotor.getVelocity(), ", ", leftMotor.getVelocity(), " L/R", DirectionToFaceBox())
         #print(" ", gps.getValues())
+        
+    inputsNN = []
+    inputsNN.append(OtherRobotArrival())    
+    for sensorValue in psValues:
+        inputsNN.append(sensorValue) 
+        
+    for i in range(len(image)):
+        inputsNN.append(IsPixelBox(i))
+        
+    #ohe = OneHotEncoder()
+    #inputsNN = ohe.fit_transform(inputsNN).toarray()
+    inputsNN = np.reshape(inputsNN, (-1, 22))
+    
+    #print(inputsNN, ", ", len(inputsNN))
+    
+    speeds = model.predict(inputsNN)
+    leftSpeed = speeds[0][0]
+    rightSpeed = speeds[0][1]
+    #print(speeds[0], " - ", leftSpeed, " - ", rightSpeed)
+    
+    if(leftSpeed < 0.3):
+        leftMotor.setVelocity(MovingSpeed * MAX_SPEED)
+    elif(leftSpeed > 0.7):
+        leftMotor.setVelocity(-MovingSpeed * MAX_SPEED)
+    else:
+        leftMotor.setVelocity(0)
+        
+    if(rightSpeed < 0.3):
+        rightMotor.setVelocity(MovingSpeed * MAX_SPEED)
+    elif(rightSpeed > 0.7):
+        rightMotor.setVelocity(-MovingSpeed * MAX_SPEED)
+    else:
+        rightMotor.setVelocity(0)
+        
+
+        
+    
