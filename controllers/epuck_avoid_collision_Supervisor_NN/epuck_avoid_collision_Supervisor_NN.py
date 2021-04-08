@@ -333,7 +333,7 @@ def mutate(individual):
 
 #EA stuff
 generationNum = 20
-numGenes = 157
+numGenes = 149
 geneLimit = 5.0
 populationLimit = 20
 pop = []

@@ -9,7 +9,8 @@ from keras.models import Sequential
 from keras.layers import Dense
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import OneHotEncoder
-
+from keras.utils.conv_utils import convert_kernel
+from numpy import random 
 
 Colour = 0
 PrintStats = 0
@@ -44,47 +45,90 @@ for i in range(len(data)):
     NNList.append(float(data[i]))
 #print(NNList)
 
+# ----------------------------------------------------------
 # Neural network
 model = Sequential()
 model.add(Dense(5, input_dim=22, activation="relu"))
-model.add(Dense(5, activation="relu"))
+model.add(Dense(4, activation="relu"))
 model.add(Dense(2, activation="softmax"))
 model.summary()
+myvals = np.asarray(NNList)
+
+print(myvals)
+# now assume you have got myvals from the EA, you need to split it up into weights and biases for each layer
+# we will interpret it as defined above
+myvals_weights_layer1 = myvals[0:110]
+myvals_weights_layer2 = myvals[110:130]
+myvals_weights_layer3 = myvals[130:138]
+myvals_biases_layer1 = myvals[138:143]
+myvals_biases_layer2 = myvals[143:147]
+myvals_biases_layer3 = myvals[147:149]
+
+
+# the weights layer needs to be in a 2d form  (3x2) for layer 1 and (2x4) for layer 2
+weights_1 = np.reshape(myvals_weights_layer1, (-1, 5))
+weights_2 = np.reshape(myvals_weights_layer2, (-1, 4))
+weights_3 = np.reshape(myvals_weights_layer2, (-1, 2))
+
+# now we need to make an array of arrays  that contains the weights and the biases for each layer
+# as this is the form the get/set weights function use
+newdata_layer1=np.array([weights_1, myvals_biases_layer1])
+newdata_layer2=np.array([weights_2, myvals_biases_layer2])
+newdata_layer3=np.array([weights_3, myvals_biases_layer3])
+
+# and now lets reset the weights to the ones that came from the EA
+print(model.layers[0].get_weights())
+model.layers[0].set_weights(newdata_layer1)
+print("---")
+print(model.layers[0].get_weights())
+print("==============================================================")
+# ----------------------------------------------------------
+
+# Neural network
+# model = Sequential()
+# model.add(Dense(5, input_dim=22, activation="relu"))
+# model.add(Dense(5, activation="relu"))
+# model.add(Dense(2, activation="softmax"))
+# model.summary()
 
 #print("1, ", model.layers[0].get_weights())
 
-print(2)
-myWeightsL1 = NNList[0:110]
-myWeightsL2 = NNList[110:135]
-myWeightsL3 = NNList[135:145]
-print(3)
-myBiasesL1 = NNList[145:150]
-myBiasesL2 = NNList[150:155]
-myBiasesL3 = NNList[155:157]
-print(4)
-weights_1 = np.reshape(myWeightsL1, (22, 5))
-weights_2 = np.reshape(myWeightsL2, (5, 5))
-weights_3 = np.reshape(myWeightsL3, (5, 2))
-print(5)
-newdata_layer1 = np.array([weights_1, myBiasesL1])
-newdata_layer2 = np.array([weights_2, myBiasesL2])
-newdata_layer3 = np.array([weights_3, myBiasesL3])
-print(6)
-print(newdata_layer1)
-print(model.layers[0].get_weights())
-print(7)
-model.layers[0].set_weights(newdata_layer1)
-model.layers[1].set_weights(newdata_layer2)
-model.layers[2].set_weights(newdata_layer3)
+# print(2)
+# myWeightsL1 = NNList[0:110]
+# myWeightsL2 = NNList[110:135]
+# myWeightsL3 = NNList[135:145]
+# print(3)
+# myBiasesL1 = NNList[145:150]
+# myBiasesL2 = NNList[150:155]
+# myBiasesL3 = NNList[155:157]
+# print(4)
+# weights_1 = np.reshape(myWeightsL1, (-1, 5))
+# weights_2 = np.reshape(myWeightsL2, (-1, 5))
+# weights_3 = np.reshape(myWeightsL3, (-1, 2))
 
-print(len(NNList))
-
-weightCount = 0
-for layers in model.layers:
-    weightCount += len(layers.get_weights())
-    #print(len(layers.get_weights()))
-print("=======================")
-print("2, ", model.layers[0].get_weights()[0])
+# myBiasesL1 = np.reshape(myBiasesL1, (-1, 5))
+# myBiasesL2 = np.reshape(myBiasesL2, (-1, 5))
+# myBiasesL3 = np.reshape(myBiasesL3, (-1, 2))
+# print(5)
+# newdata_layer1 = np.array([weights_1, myBiasesL1], np.object)
+# newdata_layer2 = np.array([weights_2, myBiasesL2], np.object)
+# newdata_layer3 = np.array([weights_3, myBiasesL3], np.object)
+# print(6)
+# print(newdata_layer1.shape)
+# print("---")
+# print(model.layers[0].get_weights())
+# print(7)
+# model.layers[0].set_weights(newdata_layer1)
+# model.layers[1].set_weights(newdata_layer2)
+# model.layers[2].set_weights(newdata_layer3)
+# print(model.layers[0].get_weights())
+# print(8)
+# weightCount = 0
+# for layers in model.layers:
+    # weightCount += len(layers.get_weights())
+    # #print(len(layers.get_weights()))
+# print("=======================")
+# print("2, ", model.layers[0].get_weights()[0])
 #print(weightCount)
 
 #print(robot.getDevice(robot.getName()))
