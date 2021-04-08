@@ -44,7 +44,7 @@ data = data[0]
 for i in range(len(data)):
     NNList.append(float(data[i]))
 #print(NNList)
-
+print(NNList[0])
 # ----------------------------------------------------------
 # Neural network
 model = Sequential()
@@ -54,7 +54,7 @@ model.add(Dense(2, activation="softmax"))
 model.summary()
 myvals = np.asarray(NNList)
 
-print(myvals)
+#print(myvals)
 # now assume you have got myvals from the EA, you need to split it up into weights and biases for each layer
 # we will interpret it as defined above
 myvals_weights_layer1 = myvals[0:110]
@@ -68,7 +68,7 @@ myvals_biases_layer3 = myvals[147:149]
 # the weights layer needs to be in a 2d form  (3x2) for layer 1 and (2x4) for layer 2
 weights_1 = np.reshape(myvals_weights_layer1, (-1, 5))
 weights_2 = np.reshape(myvals_weights_layer2, (-1, 4))
-weights_3 = np.reshape(myvals_weights_layer2, (-1, 2))
+weights_3 = np.reshape(myvals_weights_layer3, (-1, 2))
 
 # now we need to make an array of arrays  that contains the weights and the biases for each layer
 # as this is the form the get/set weights function use
@@ -77,10 +77,12 @@ newdata_layer2=np.array([weights_2, myvals_biases_layer2])
 newdata_layer3=np.array([weights_3, myvals_biases_layer3])
 
 # and now lets reset the weights to the ones that came from the EA
-print(model.layers[0].get_weights())
+#print(model.layers[0].get_weights())
 model.layers[0].set_weights(newdata_layer1)
-print("---")
-print(model.layers[0].get_weights())
+model.layers[1].set_weights(newdata_layer2)
+model.layers[2].set_weights(newdata_layer3)
+#print("---")
+print(model.layers[0].get_weights()[0][0])
 print("==============================================================")
 # ----------------------------------------------------------
 

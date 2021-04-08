@@ -362,7 +362,8 @@ while supervisor.step(TIME_STEP) != -1:
     
     
     pop = generatePopulation()
-    print(evaluate(pop[0]))
+    for NN in pop:
+        print(evaluate(NN))
         
     #print(pop)
     
