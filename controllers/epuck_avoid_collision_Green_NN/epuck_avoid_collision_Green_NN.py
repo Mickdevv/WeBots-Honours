@@ -41,17 +41,18 @@ with open('cNN.csv', newline='') as f:
 
 NNList = []
 data = data[0]
+
 for i in range(len(data)):
     NNList.append(float(data[i]))
 #print(NNList)
-print(NNList[0])
+#print("First weight in first layer: ", NNList[0])
 # ----------------------------------------------------------
 # Neural network
 model = Sequential()
 model.add(Dense(5, input_dim=22, activation="relu"))
 model.add(Dense(4, activation="relu"))
 model.add(Dense(2, activation="softmax"))
-model.summary()
+#model.summary()
 myvals = np.asarray(NNList)
 
 #print(myvals)
@@ -63,7 +64,6 @@ myvals_weights_layer3 = myvals[130:138]
 myvals_biases_layer1 = myvals[138:143]
 myvals_biases_layer2 = myvals[143:147]
 myvals_biases_layer3 = myvals[147:149]
-
 
 # the weights layer needs to be in a 2d form  (3x2) for layer 1 and (2x4) for layer 2
 weights_1 = np.reshape(myvals_weights_layer1, (-1, 5))
@@ -82,8 +82,8 @@ model.layers[0].set_weights(newdata_layer1)
 model.layers[1].set_weights(newdata_layer2)
 model.layers[2].set_weights(newdata_layer3)
 #print("---")
-print(model.layers[0].get_weights()[0][0])
-print("==============================================================")
+#print(model.layers[0].get_weights()[0][0])
+#print("==============================================================")
 # ----------------------------------------------------------
 
 # Neural network
@@ -280,7 +280,14 @@ def IsPixelBox(x):
     else:        
         return pixelIsBox
         
-# ----------------------------------------------------------     
+# ----------------------------------------------------------   
+def countFoundPixels():
+    foundCount = 0
+    for i in range(len(image)):
+        if not IsPixelBox(i):
+            foundCount+=1
+    return str(foundCount)
+# ----------------------------------------------------------   
 
 def DirectionToFaceBox():
     direction = 0
@@ -468,11 +475,8 @@ def BoxInFrame():
         
     return condition    
 
+		
 # ----------------------------------------------------------   
-
-
-
-
 # feedback loop: step simulation until receiving an exit event
 while robot.step(TIME_STEP) != -1:
     # read sensors outputs
@@ -544,7 +548,11 @@ while robot.step(TIME_STEP) != -1:
         f.write("1")
         if ArrivalDeclared == 0:
             ArrivalDeclared = 1
-                       
+            
+    
+    f = open("FoundPixels" + ColourText + ".txt", "w")
+    f.write(countFoundPixels())
+    #print(countFoundPixels())         
     if PrintStats == 1:
         print("State: ", state, " | Camera reading: ", image, " | ", leftMotor.getVelocity(), ", ", leftMotor.getVelocity(), " L/R", DirectionToFaceBox())
         #print(" ", gps.getValues())
@@ -552,7 +560,7 @@ while robot.step(TIME_STEP) != -1:
     inputsNN = []
     inputsNN.append(OtherRobotArrival())    
     for sensorValue in psValues:
-        inputsNN.append(sensorValue) 
+        inputsNN.append(sensorValue/100) 
         
     for i in range(len(image)):
         inputsNN.append(IsPixelBox(i))
@@ -562,26 +570,32 @@ while robot.step(TIME_STEP) != -1:
     inputsNN = np.reshape(inputsNN, (-1, 22))
     
     #print(inputsNN, ", ", len(inputsNN))
-    
+    #print(model.predict(inputsNN), "-")
     speeds = model.predict(inputsNN)
     leftSpeed = speeds[0][0]
     rightSpeed = speeds[0][1]
     #print(speeds[0], " - ", leftSpeed, " - ", rightSpeed)
+    #print(inputsNN)
     
-    if(leftSpeed < 0.3):
-        leftMotor.setVelocity(MovingSpeed * MAX_SPEED)
-    elif(leftSpeed > 0.7):
-        leftMotor.setVelocity(-MovingSpeed * MAX_SPEED)
-    else:
-        leftMotor.setVelocity(0)
+    leftMotor.setVelocity((leftSpeed - 0.5) * MAX_SPEED * 2)
+    rightMotor.setVelocity(-(rightSpeed - 0.5) * MAX_SPEED * 2)
+    
+    
+    
+    # if(leftSpeed < 0.3):
+        # leftMotor.setVelocity(MovingSpeed * MAX_SPEED)
+    # elif(leftSpeed > 0.7):
+        # leftMotor.setVelocity(-MovingSpeed * MAX_SPEED)
+    # else:
+        # leftMotor.setVelocity(0)
         
-    if(rightSpeed < 0.3):
-        rightMotor.setVelocity(MovingSpeed * MAX_SPEED)
-    elif(rightSpeed > 0.7):
-        rightMotor.setVelocity(-MovingSpeed * MAX_SPEED)
-    else:
-        rightMotor.setVelocity(0)
+    # if(rightSpeed < 0.3):
+        # rightMotor.setVelocity(MovingSpeed * MAX_SPEED)
+    # elif(rightSpeed > 0.7):
+        # rightMotor.setVelocity(-MovingSpeed * MAX_SPEED)
+    # else:
+        # rightMotor.setVelocity(0)
         
-
+    #print(leftMotor.getVelocity(), ", ", rightMotor.getVelocity())
         
     

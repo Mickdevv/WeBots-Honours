@@ -18,6 +18,7 @@ from deap import algorithms
 from deap import base
 from deap import creator
 from deap import tools
+import matplotlib.pyplot as plt
 
 from numpy import random
 from tensorflow import keras
@@ -27,6 +28,10 @@ from keras.layers import Dense
 
 print("Started")
 
+evaluationCount = 0.0
+
+
+
 numberOfRobots = 3
 
 start = time.time()
@@ -35,8 +40,10 @@ numberOfRobots = 3
 
 TIME_STEP = 32
 
-SimulationTimeLimit = 120
+SimulationTimeLimit = 45
 
+done = 0
+    
 with open('Times.csv', 'a') as the_file:
     writer = csv.writer(the_file)
     writer.writerow("N")
@@ -114,6 +121,8 @@ startingPositionsPermanentTesting = [
 [[-0.72, 0.02, -0.47], [-0.54, 0.02, -0.43], [-2.29, 0.02, 0.02]], 
 [[0.94, 0.02, -0.83], [-2.34, 0.02, -0.67], [2.48, 0.02, -1.1]], 
 [[1.34, 0.02, -1.15], [-1.3, 0.02, -0.72], [-2.41, 0.02, -0.78]]]
+
+simulationStartTime = supervisor.getTime()
 
 startingPositionsGenerated = []
 #print(trans_field.getSFVec3f())
@@ -255,10 +264,20 @@ def avg(lst):
     
     return avg
 # ----------------------------------------------------------
-#def robotsReady():
+def distanceBetween(d1, d2):
+
+    x1 = float(d1[0])
+    x2 = float(d1[1])
+    z1 = float(d2[0])
+    z2 = float(d2[1])
+    
+    distance = (((x1-x2)**2) + ((z1-z2)**2))**0.5
+    return distance
+    
 # ---------------------------------------------------------- 
 def evaluate(individual):
-
+    
+    fitness = 0
     file = "..\\epuck_avoid_collision_Green_NN\cNN.csv"
     if os.path.exists(file):
         os.remove(file)
@@ -273,7 +292,11 @@ def evaluate(individual):
     
     #while not robotsReady(): 
         #supervisor.step(TIME_STEP) 
-        
+    boxStartingPosition = trans_field.getSFVec3f()
+    greenRobotStartingPosition = trans_field_Green.getSFVec3f()  
+    
+    #print("=============== ", boxStartingPosition - greenRobotstartingPosition)
+    
     startEvaluation = supervisor.getTime()  
     reset = 0
     PositionsSet = 0
@@ -285,41 +308,61 @@ def evaluate(individual):
     Node.restartController(supervisor.getFromDef("Red"))
     Node.restartController(supervisor.getFromDef("Green"))
     Node.restartController(supervisor.getFromDef("Blue"))
-    print("Starting positions:")
-    print([startingPositionsPermanent[0][0][0], startingPositionsPermanent[0][0][1], startingPositionsPermanent[0][0][2]])
-    print([startingPositionsPermanent[0][1][0], startingPositionsPermanent[0][1][1], startingPositionsPermanent[0][1][2]])
-    print([startingPositionsPermanent[0][2][0], startingPositionsPermanent[0][2][1], startingPositionsPermanent[0][2][2]])
+    #print("Starting positions:")
+    #print([startingPositionsPermanent[0][0][0], startingPositionsPermanent[0][0][1], startingPositionsPermanent[0][0][2]])
+    #print([startingPositionsPermanent[0][1][0], startingPositionsPermanent[0][1][1], startingPositionsPermanent[0][1][2]])
+    #print([startingPositionsPermanent[0][2][0], startingPositionsPermanent[0][2][1], startingPositionsPermanent[0][2][2]])
 
-    trans_field_Red.setSFVec3f([startingPositionsPermanent[0][0][0], startingPositionsPermanent[0][0][1], startingPositionsPermanent[0][0][2]])
-    trans_field_Green.setSFVec3f([startingPositionsPermanent[0][1][0], startingPositionsPermanent[0][1][1], startingPositionsPermanent[0][1][2]])
-    trans_field_Blue.setSFVec3f([startingPositionsPermanent[0][2][0], startingPositionsPermanent[0][2][1], startingPositionsPermanent[0][2][2]])
-        
+    #trans_field_Red.setSFVec3f([startingPositionsPermanent[0][0][0], startingPositionsPermanent[0][0][1], startingPositionsPermanent[0][0][2]])
+    #trans_field_Green.setSFVec3f([startingPositionsPermanent[0][1][0], startingPositionsPermanent[0][1][1], startingPositionsPermanent[0][1][2]])
+    #trans_field_Blue.setSFVec3f([startingPositionsPermanent[0][2][0], startingPositionsPermanent[0][2][1], startingPositionsPermanent[0][2][2]])
+    inFOVTime = 0    
     while reset == 0:
         supervisor.step(TIME_STEP)
         #print(2)
         #if trans_field.getSFVec3f()[0] > 0.31 and TimeToRecord2 == 0:
             #TimeToRecord2 = round(supervisor.getTime(), 2)
-                
+        file = "..\\epuck_avoid_collision_Green_NN\FoundPixelsGreen.txt"
+        if os.path.exists(file):
+            #print(1)
+            OtherFile = open(file, "r")
+            for element in OtherFile.read():
+                #print("= ", element)
+                inFOVTime += int(element)       
         if trans_field.getSFVec3f()[0] > 1.5 or supervisor.getTime() > SimulationTimeLimit:
-            TimeToRecord = round(startEvaluation - supervisor.getTime(), 2)
-            return(TimeToRecord)
+            #fitness = startEvaluation - supervisor.getTime()
+            distanceToCover = distanceBetween(trans_field.getSFVec3f(), greenRobotStartingPosition)
+            distanceCovered = distanceBetween(trans_field.getSFVec3f(), trans_field_Green.getSFVec3f()) 
+            #How much closer the robot ended up to the box
+            fitness += distanceToCover/(distanceCovered + 1) * 10
+            #How much closer the box got to its objectuive
+            fitness += (1.5 - boxStartingPosition[0]) / (1.5 - trans_field.getSFVec3f()[0] + 0.1) * 100 
+            fitness += inFOVTime/50 #For how long was the box in view
+            #evaluationCount += 1.0
+            #print("Evaluation " , evaluationCount, " / ", totalEvaluations)
+            #print("Time elapsed: ", supervisor.getTime() - simulationStartTime)
+            #remainingTime = (totalEvaluations - evaluationCount) * (evaluationCount / supervisor.getTime())
+            #print("Time remaining: ", remainingTime)
+            print("Distance fitnesses: ", distanceToCover/(distanceCovered + 1) * 100, " | inFOVTime fitness: ", inFOVTime/50)
+            print(fitness)
+            return fitness,
             reset = 1
 
            
 # ---------------------------------------------------------- 
-def generateIndividual():
-    individual = []
+def generateIndividual(creator, numGenes):
+    individual = creator(np.zeros(numGenes))
     #individual.append(0)
     for i in range(numGenes):
         gene = random.uniform(-geneLimit, geneLimit)
-        individual.append(gene)
+        individual[i] = gene
     return individual
 # ---------------------------------------------------------- 
 def generatePopulation():
     population = []
     for i in range(populationLimit):
         population.append(generateIndividual())
-    return population
+    return population,
 # ---------------------------------------------------------- 
 def mutate(individual):
     for i in range(len(individual)):
@@ -328,44 +371,122 @@ def mutate(individual):
             individual[i] += mutateChange
         elif (randomNumber > mutateProbability and randomNumber < (mutateProbability*2)):
             individual[i] -= mutateChange
-    return individual
+    return individual,
+# ----------------------------------------------------------   
+#Swaps the current gene with another random one
+def mutateSwap(individual):	
+    for i in range(len(individual)):		
+        randomNum = random.randint(0,200)			
+        if (randomNum < swapProbability): 				
+            r = random.randint(0, len(individual))
+            temp = individual.chromosome[i]
+            individual.chromosome[i] = individual[r]
+            individual[r] = temp	
+    return individual,
 # ---------------------------------------------------------- 
+def OnePCX(parent1, parent2):
+    randomNum = random.randint(0,len(parent1))
+    child = []
+    child.append(parent1[0:randomNum])
+    child.append(parent2[randomNum:len(parent1)])
+    return child,
+    
+# ---------------------------------------------------------- 	
+def selection(pop, returnIndividualsCount):
+    parents = []
+    for i in range(len(pop)):
+        parents.append(pop[random.randint(0,len(pop))])
+    return parents,
+# ---------------------------------------------------------- 
+def main():
+    # choose a population size: e.g. 200
 
+    population = populationLimit
+    pop = toolbox.population(n=population)
+
+    # keep track of the single best solution found
+    hof = tools.HallOfFame(1)
+
+    #create a statistics object: we can log what ever statistics 
+    #we want using this. We use the numpy Python library
+    #to calculate the stats and label them with convenient labels
+    stats = tools.Statistics(lambda ind: ind.fitness.values)
+    stats.register("avg", np.mean)
+    stats.register("std", np.std)
+    stats.register("min", np.min)
+    stats.register("max", np.max)
+
+    # run the algorithm: we need to tell it what parameters to use
+    # cxpb = crossover probability; mutpb = mutation probability; ngen = number of iterations
+    pop, log = algorithms.eaSimple(pop, toolbox, cxpb=0.6, mutpb=mutateProbability, ngen=generationNum,
+                                   stats=stats, halloffame=hof, verbose=True)
+    print(population)
+    return pop, log, hof
+# ---------------------------------------------------------- 	
 #EA stuff
-generationNum = 20
+generationNum = 50
 numGenes = 149
 geneLimit = 5.0
 populationLimit = 20
 pop = []
+totalEvaluations = generationNum * populationLimit
 
-mutateProbability = 20
+mutateProbability = 30
 mutateChange = 0.2
+mutateSwapProbability = 20
 
 # define the fitness class and create an individual class
-creator.create("FitnessMin", base.Fitness, weights=(1.0,))
+creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
 creator.create("Individual", list, fitness=creator.FitnessMin)
 # create a toolbox
 toolbox = base.Toolbox()
 # USE THIS LINE IF YOU WANT TO USE THE CUSTOM INIT FUNCTION
-toolbox.register("individual", generateIndividual, creator.Individual, populationLimit)
+toolbox.register("individual", generateIndividual, creator.Individual, numGenes)
 #  a population consist of a list of individuals
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
 # register all operators we need with the toolbox
 toolbox.register("evaluate", evaluate)
 toolbox.register("mate", tools.cxTwoPoint)
+#toolbox.register("mate", OnePCX)
 toolbox.register("mutate", mutate)
-toolbox.register("select", tools.selTournament, tournsize=2)
+toolbox.register("select", tools.selTournament, tournsize=4)
+
 
 #-----------------------------------------------------------
-while supervisor.step(TIME_STEP) != -1:
+while supervisor.step(TIME_STEP) != -1 and done == 0:
     
-    
-    pop = generatePopulation()
-    for NN in pop:
-        print(evaluate(NN))
+    x=0
+    #Run the EA and save the best NN
+    if(x == 0):
+        pop, log, hof = main()
+        # extract the best fitness
+        best = hof[0].fitness.values[0]
+        print(best)
+        file = "..\\NNBest.csv"
+        if os.path.exists(file):
+            os.remove(file)
+        with open("..\\NNBest.csv", "w") as file:
+            writer = csv.writer(file)
+            writer.writerow(hof[0])
+    #Test the best EA from the last run
+    elif(x == 1):
+        with open("..\\NNBest.csv", newline='') as f:
+            reader = csv.reader(f)
+            data = list(reader)
+        NNList = []
+        data = data[0]
+        for i in range(len(data)):
+            NNList.append(float(data[i]))
         
-    #print(pop)
+        evaluate(NNList)
+            
+    done = 1
+    
+    print("========================= Done =========================")
+    
+    supervisor.simulationSetMode(0)
+            #print(pop)
     
     
     
