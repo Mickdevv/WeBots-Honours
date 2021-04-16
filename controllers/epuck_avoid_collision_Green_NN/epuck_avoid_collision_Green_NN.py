@@ -3,14 +3,22 @@ from controller import Robot, DistanceSensor, Motor, Supervisor, Node, Camera, F
 import numpy as np
 import deap, nnfs, os, time, csv, sys, random
 import pandas as pd
-import tensorflow
+import tensorflow as tf
 import keras
+#from keras.backend.tensorflow_backend import set_session
 from keras.models import Sequential
 from keras.layers import Dense
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import OneHotEncoder
 from keras.utils.conv_utils import convert_kernel
 from numpy import random 
+
+#tf.Session(config=tf.ConfigProto(allow_growth=True))
+
+#gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.2)
+#sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 Colour = 0
 PrintStats = 0
@@ -26,6 +34,15 @@ TurningSpeed = 0.5
 MovingSpeed = 1
 leftSpeed = 0
 rightSpeed = 0
+
+ps0 = 0
+ps1 = 0
+ps2 = 0
+ps3 = 0
+ps4 = 0
+ps5 = 0
+ps6 = 0
+ps7 = 0
 
 ##Bigger the number, the closer it will get to obstacles
 DistanceValue = 78
@@ -44,6 +61,7 @@ data = data[0]
 
 for i in range(len(data)):
     NNList.append(float(data[i]))
+#print("====", len(NNList))
 #print(NNList)
 #print("First weight in first layer: ", NNList[0])
 # ----------------------------------------------------------
@@ -51,7 +69,7 @@ for i in range(len(data)):
 model = Sequential()
 model.add(Dense(5, input_dim=22, activation="relu"))
 model.add(Dense(2, activation="softmax"))
-model.summary()
+#model.summary()
 myvals = np.asarray(NNList)
 
 #print(myvals)
@@ -252,23 +270,23 @@ def IsPixelBox(x):
             image.pop(0)
     
     #Green
-    if Colour == 0:
-        if image[x][0][0] * 6 > image[x][0][1] + 20 or image[x][0][0] * 6 < image[x][0][1] - 20 or image[x][0][0] * 5 > image[x][0][2]*2 + 40 or image[x][0][0] * 5 < image[x][0][2]*2 - 40:
+    #if Colour == 0:
+    if image[x][0][0] * 6 > image[x][0][1] + 20 or image[x][0][0] * 6 < image[x][0][1] - 20 or image[x][0][0] * 5 > image[x][0][2]*2 + 40 or image[x][0][0] * 5 < image[x][0][2]*2 - 40:
         #if image[x][0][0] < 200 or image[x][0][1] < 40 or image[x][0][1] > 60 or image[x][0][2] < 40 or image[x][0][2] > 60:
         #if image[x][0][0] > 40 or image[x][0][0] < 20 or image[x][0][1] < 170 or image[x][0][1] > 200 or image[x][0][2] < 70 or image[x][0][2] > 100:
-            pixelIsBox = 0
+        pixelIsBox = 0
            
     #Red 
-    if Colour == 1:
-        if image[x][0][0] < image[x][0][1]*5 - 20 or image[x][0][0] > image[x][0][2]*4 + 20 or image[x][0][0] < image[x][0][2]*3 - 20:
+    #if Colour == 1:
+    if image[x][0][0] < image[x][0][1]*5 - 20 or image[x][0][0] > image[x][0][2]*4 + 20 or image[x][0][0] < image[x][0][2]*3 - 20:
         #if image[x][0][0] > 60 or image[x][0][0] < 40 or image[x][0][1] < 150 or image[x][0][1] > 190 or image[x][0][2] < 70 or image[x][0][2] > 100:
-            pixelIsBox = 0
+        pixelIsBox = 0
     
     #Blue        
-    if Colour == 2:
-        if image[x][0][0]*3 < image[x][0][2] - 30 or image[x][0][0]*3 > image[x][0][2] + 20 or image[x][0][1]*5 > image[x][0][2]*2 + 30 or image[x][0][1]*5 < image[x][0][2]*2 - 50:
+    #if Colour == 2:
+    if image[x][0][0]*3 < image[x][0][2] - 30 or image[x][0][0]*3 > image[x][0][2] + 20 or image[x][0][1]*5 > image[x][0][2]*2 + 30 or image[x][0][1]*5 < image[x][0][2]*2 - 50:
         #if image[x][0][0] > 60 or image[x][0][0] < 40 or image[x][0][1] < 150 or image[x][0][1] > 190 or image[x][0][2] < 70 or image[x][0][2] > 100:
-            pixelIsBox = 0        
+        pixelIsBox = 0        
                     
     if sum(image[x][0]) <= 60:
         return 0
@@ -494,42 +512,50 @@ while robot.step(TIME_STEP) != -1:
     if len(psValuesAverage0) < avgSampleSize:
         psValuesAverage0.append(psValues[0])
     else:
-        psValuesAverage0 = [avg(psValuesAverage0)]
+        ps0 = avg(psValuesAverage0)
+        psValuesAverage0 = []
     
     if len(psValuesAverage1) < avgSampleSize:
         psValuesAverage1.append(psValues[1])
     else:
-        psValuesAverage1 = [avg(psValuesAverage1)]
+        ps1 = avg(psValuesAverage1)
+        psValuesAverage1 = []
     
     if len(psValuesAverage2) < avgSampleSize:
         psValuesAverage2.append(psValues[2])
     else:
-        psValuesAverage2 = [avg(psValuesAverage2)]
+        ps2 = avg(psValuesAverage2)
+        psValuesAverage2 = []
     
     if len(psValuesAverage3) < avgSampleSize:
         psValuesAverage3.append(psValues[3])
     else:
-        psValuesAverage3 = [avg(psValuesAverage3)]
+        ps3 = avg(psValuesAverage3)
+        psValuesAverage3 = []
     
     if len(psValuesAverage4) < avgSampleSize:
         psValuesAverage4.append(psValues[4])
     else:
-        psValuesAverage4 = [avg(psValuesAverage4)]
+        ps4 = avg(psValuesAverage4)
+        psValuesAverage4 = []
     
     if len(psValuesAverage5) < avgSampleSize:
         psValuesAverage5.append(psValues[5])
     else:
-        psValuesAverage5 = [avg(psValuesAverage5)]
+        ps5 = avg(psValuesAverage5)
+        psValuesAverage5 = []
     
     if len(psValuesAverage6) < avgSampleSize:
         psValuesAverage6.append(psValues[6])
     else:
-        psValuesAverage6 = [avg(psValuesAverage6)]
+        ps6 = avg(psValuesAverage6)
+        psValuesAverage6 = []
     
     if len(psValuesAverage7) < avgSampleSize:
         psValuesAverage7.append(psValues[7])
     else:
-        psValuesAverage7 = [avg(psValuesAverage7)]
+        ps7 = avg(psValuesAverage7)
+        psValuesAverage7 = []
   
         
     # detect obstacles
@@ -559,7 +585,8 @@ while robot.step(TIME_STEP) != -1:
         
     for i in range(len(image)):
         inputsNN.append(IsPixelBox(i))
-        
+    #print("inputs: ", len(inputsNN))
+    #print(inputsNN)    
     #ohe = OneHotEncoder()
     #inputsNN = ohe.fit_transform(inputsNN).toarray()
     inputsNN = np.reshape(inputsNN, (-1, 22))
@@ -570,7 +597,7 @@ while robot.step(TIME_STEP) != -1:
     leftSpeed = speeds[0][0]
     rightSpeed = speeds[0][1]
     #print(speeds[0], " - ", leftSpeed, " - ", rightSpeed)
-    #print(inputsNN)
+    
     
     leftMotor.setVelocity((leftSpeed - 0.5) * MAX_SPEED * 2)
     rightMotor.setVelocity(-(rightSpeed - 0.5) * MAX_SPEED * 2)

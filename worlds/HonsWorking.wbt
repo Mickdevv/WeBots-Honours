@@ -7,7 +7,7 @@ WorldInfo {
 }
 Viewpoint {
   orientation -0.1104608076234966 -0.9257128021655949 -0.3617377750330853 2.6074101527634563
-  position -2.817354310119033 3.83185234995417 -3.8194575906884696
+  position -3.009858656683811 3.042223550422107 -3.0326423013404873
 }
 TexturedBackground {
 }
@@ -18,16 +18,16 @@ Floor {
   tileSize 1 1
 }
 DEF Red E-puck {
-  translation -0.799581 0.000599907 -0.863067
+  translation -1.67263 0.00090786 -1.16076
   rotation 0.0001937579944908038 0.9999999715666129 0.00013901299604738958 -1.7360953071795864
   name "e-puck_Red"
-  controller "epuck_avoid_collision_Red"
+  controller "epuck_avoid_collision_Red_NN"
   camera_fieldOfView 1.6
   camera_width 13
   camera_height 1
 }
 DEF Green E-puck {
-  translation -1.58096 0.00111593 0.0820793
+  translation -1.89122 0.00137195 -0.030683
   rotation 0.0003726739553413409 0.999999880166958 0.00031745896195792234 -1.919525307179586
   name "e-puck_Green"
   controller "epuck_avoid_collision_Green_NN"
@@ -36,10 +36,10 @@ DEF Green E-puck {
   camera_height 1
 }
 DEF Blue E-puck {
-  translation -1.06514 0.000592146 0.712284
+  translation -1.92432 0.00116722 0.404108
   rotation 0.00032984295042791243 0.9999998497100512 0.0004379309341833724 -1.3090153071795863
   name "e-puck_Blue"
-  controller "epuck_avoid_collision_Blue"
+  controller "epuck_avoid_collision_Blue_NN"
   camera_fieldOfView 1.6
   camera_width 13
   camera_height 1
@@ -72,7 +72,7 @@ DEF Supervisor Robot {
     size 0.05 0.5 0.1
   }
   physics Physics {
-    density 3
+    density 10
   }
   controller "epuck_avoid_collision_Supervisor_NN"
   supervisor TRUE

@@ -14,6 +14,7 @@ from random import random
 import sklearn
 import keras
 import tensorflow as tf
+#from keras.backend.tensorflow_backend import set_session
 from deap import algorithms
 from deap import base
 from deap import creator
@@ -26,11 +27,17 @@ from tensorflow.keras import layers
 from keras.models import Sequential
 from keras.layers import Dense
 
+import datetime
+#gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.2)
+#sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
 print("Started")
 
 evaluationCount = 0.0
 
-
+robotNames = ["Red", "Green", "Blue"]
 
 numberOfRobots = 3
 
@@ -40,7 +47,7 @@ numberOfRobots = 3
 
 TIME_STEP = 32
 
-SimulationTimeLimit = 45
+SimulationTimeLimit = 30
 
 done = 0
     
@@ -277,24 +284,49 @@ def distanceBetween(d1, d2):
 # ---------------------------------------------------------- 
 def evaluate(individual):
     
+    #print(len(individual))
+    
     fitness = 0
-    file = "..\\epuck_avoid_collision_Green_NN\cNN.csv"
-    if os.path.exists(file):
-        os.remove(file)
-        
     floatList = []
     for i in range(len(individual)):
         floatList.append(float(individual[i]))
-        
-    with open("..\\epuck_avoid_collision_Green_NN\cNN.csv", "w") as file:
-        writer = csv.writer(file)
+    
+    
+    fileGreen = "..\\epuck_avoid_collision_Green_NN\cNN.csv"
+    if os.path.exists(fileGreen):
+        os.remove(fileGreen)
+            
+    with open("..\\epuck_avoid_collision_Green_NN\cNN.csv", "w") as fileGreen:
+        writer = csv.writer(fileGreen)
         writer.writerow(individual)
+    
+    
+    
+    fileRed = "..\\epuck_avoid_collision_Red_NN\cNN.csv"
+    if os.path.exists(fileRed):
+        os.remove(fileRed)
+            
+    with open("..\\epuck_avoid_collision_Red_NN\cNN.csv", "w") as fileRed:
+        writer = csv.writer(fileRed)
+        writer.writerow(individual)
+        
+        
+        
+    fileBlue = "..\\epuck_avoid_collision_Blue_NN\cNN.csv"
+    if os.path.exists(fileBlue):
+        os.remove(fileBlue)
+            
+    with open("..\\epuck_avoid_collision_Blue_NN\cNN.csv", "w") as fileBlue:
+        writer = csv.writer(fileBlue)
+        writer.writerow(individual)
+    
     
     #while not robotsReady(): 
         #supervisor.step(TIME_STEP) 
     boxStartingPosition = trans_field.getSFVec3f()
     greenRobotStartingPosition = trans_field_Green.getSFVec3f()  
-    
+    redRobotStartingPosition = trans_field_Red.getSFVec3f()  
+    blueRobotStartingPosition = trans_field_Blue.getSFVec3f()  
     #print("=============== ", boxStartingPosition - greenRobotstartingPosition)
     
     startEvaluation = supervisor.getTime()  
@@ -322,29 +354,51 @@ def evaluate(individual):
         #print(2)
         #if trans_field.getSFVec3f()[0] > 0.31 and TimeToRecord2 == 0:
             #TimeToRecord2 = round(supervisor.getTime(), 2)
-        file = "..\\epuck_avoid_collision_Green_NN\FoundPixelsGreen.txt"
+        file = "..\\epuck_avoid_collision_Red_NN\FoundPixelsRed.txt"
         if os.path.exists(file):
             #print(1)
             OtherFile = open(file, "r")
             for element in OtherFile.read():
                 #print("= ", element)
                 inFOVTime += int(element)       
+        
+        file = "..\\epuck_avoid_collision_Green_NN\FoundPixelsGreen.txt"
+        if os.path.exists(file):
+            #print(1)
+            OtherFile = open(file, "r")
+            for element in OtherFile.read():
+                #print("= ", element)
+                inFOVTime += int(element)   
+        
+        file = "..\\epuck_avoid_collision_Blue_NN\FoundPixelsBlue.txt"
+        if os.path.exists(file):
+            #print(1)
+            OtherFile = open(file, "r")
+            for element in OtherFile.read():
+                #print("= ", element)
+                inFOVTime += int(element)   
+                
+        
         if trans_field.getSFVec3f()[0] > 1.5 or supervisor.getTime() > SimulationTimeLimit:
-            #fitness = startEvaluation - supervisor.getTime()
-            distanceToCover = distanceBetween(trans_field.getSFVec3f(), greenRobotStartingPosition)
-            distanceCovered = distanceBetween(trans_field.getSFVec3f(), trans_field_Green.getSFVec3f()) 
+            distanceToCoverGreen = distanceBetween(trans_field.getSFVec3f(), greenRobotStartingPosition)
+            distanceCoveredGreen = distanceBetween(trans_field.getSFVec3f(), trans_field_Green.getSFVec3f()) 
+            
+            distanceToCoverRed = distanceBetween(trans_field.getSFVec3f(), redRobotStartingPosition)
+            distanceCoveredRed = distanceBetween(trans_field.getSFVec3f(), trans_field_Red.getSFVec3f())
+            
+            distanceToCoverBlue = distanceBetween(trans_field.getSFVec3f(), blueRobotStartingPosition)
+            distanceCoveredBlue = distanceBetween(trans_field.getSFVec3f(), trans_field_Blue.getSFVec3f())
+            
+            avgDistanceToCover = (distanceToCoverRed + distanceToCoverBlue + distanceToCoverGreen) / 3
+            avgDistanceCovered = (distanceCoveredRed + distanceCoveredBlue + distanceCoveredGreen) / 3
             #How much closer the robot ended up to the box
-            fitness += distanceToCover/(distanceCovered + 1) * 10
+            fitness += avgDistanceToCover/(avgDistanceCovered + 1) * 10
             #How much closer the box got to its objectuive
             fitness += (1.5 - boxStartingPosition[0]) / (1.5 - trans_field.getSFVec3f()[0] + 0.1) * 100 
-            fitness += inFOVTime*10 #For how long was the box in view
-            #evaluationCount += 1.0
-            #print("Evaluation " , evaluationCount, " / ", totalEvaluations)
-            #print("Time elapsed: ", supervisor.getTime() - simulationStartTime)
-            #remainingTime = (totalEvaluations - evaluationCount) * (evaluationCount / supervisor.getTime())
-            #print("Time remaining: ", remainingTime)
-            print("Distance fitnesses: ", distanceToCover/(distanceCovered + 1) * 100, " | inFOVTime fitness: ", inFOVTime/50)
-            print(fitness)
+            fitness += inFOVTime/100 #For how long was the box in view
+
+            print("Distance fitnesses: ", avgDistanceToCover/(avgDistanceCovered + 1) * 10, " | inFOVTime fitness: ", inFOVTime)
+            print("Fitness: ", fitness)
             return fitness,
             reset = 1
 
@@ -425,7 +479,7 @@ def main():
 # ---------------------------------------------------------- 	
 #EA stuff
 generationNum = 80
-numGenes = 149
+numGenes = 127
 geneLimit = 5.0
 populationLimit = 20
 pop = []
@@ -456,9 +510,10 @@ toolbox.register("select", tools.selTournament, tournsize=4)
 #-----------------------------------------------------------
 while supervisor.step(TIME_STEP) != -1 and done == 0:
     
-    x=1
+    x=0
     #Run the EA and save the best NN
     if(x == 0):
+        start = time.time()
         pop, log, hof = main()
         # extract the best fitness
         best = hof[0].fitness.values[0]
@@ -469,6 +524,8 @@ while supervisor.step(TIME_STEP) != -1 and done == 0:
         with open("..\\NNBest.csv", "w") as file:
             writer = csv.writer(file)
             writer.writerow(hof[0])
+        timeTaken = (time.time() - start)
+        print("Time taken: ", str(datetime.timedelta(seconds=timeTaken)))
     #Test the best EA from the last run
     elif(x == 1):
         with open("..\\NNBest.csv", newline='') as f:
@@ -478,7 +535,6 @@ while supervisor.step(TIME_STEP) != -1 and done == 0:
         data = data[0]
         for i in range(len(data)):
             NNList.append(float(data[i]))
-        
         evaluate(NNList)
             
     done = 1
