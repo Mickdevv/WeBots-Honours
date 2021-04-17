@@ -400,6 +400,9 @@ def evaluate(individual):
         
         
         if trans_field.getSFVec3f()[0] > 1.5 or supervisor.getTime() > SimulationTimeLimit or failed == 1:
+        
+            fitness += supervisor.getTime() * 5
+        
             distanceToCoverGreen = distanceBetween(trans_field.getSFVec3f(), greenRobotStartingPosition)
             distanceCoveredGreen = distanceBetween(trans_field.getSFVec3f(), trans_field_Green.getSFVec3f()) 
             
