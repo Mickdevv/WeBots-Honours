@@ -56,6 +56,8 @@ with open('Times.csv', 'a') as the_file:
     writer = csv.writer(the_file)
     writer.writerow("N")
 
+
+
 PositionsSet = 0
 
 Runs = 0
@@ -350,8 +352,19 @@ def evaluate(individual):
     #trans_field_Green.setSFVec3f([startingPositionsPermanent[0][1][0], startingPositionsPermanent[0][1][1], startingPositionsPermanent[0][1][2]])
     #trans_field_Blue.setSFVec3f([startingPositionsPermanent[0][2][0], startingPositionsPermanent[0][2][1], startingPositionsPermanent[0][2][2]])
     inFOVTime = 0    
+    
+    robotPositions = [[],[],[],[],[],[]]
+    
     while reset == 0:
+    
+        robotPositions[0].append(trans_field_Red.getSFVec3f()[0])
+        robotPositions[1].append(trans_field_Red.getSFVec3f()[2])
+        robotPositions[2].append(trans_field_Green.getSFVec3f()[0])
+        robotPositions[3].append(trans_field_Green.getSFVec3f()[2])
+        robotPositions[4].append(trans_field_Blue.getSFVec3f()[0])
+        robotPositions[5].append(trans_field_Blue.getSFVec3f()[2])
         supervisor.step(TIME_STEP)
+        
         #print(2)
         #if trans_field.getSFVec3f()[0] > 0.31 and TimeToRecord2 == 0:
             #TimeToRecord2 = round(supervisor.getTime(), 2)
@@ -380,6 +393,7 @@ def evaluate(individual):
                 inFOVTime += int(element)   
                 
         
+        
         if trans_field.getSFVec3f()[0] > 1.5 or supervisor.getTime() > SimulationTimeLimit:
             distanceToCoverGreen = distanceBetween(trans_field.getSFVec3f(), greenRobotStartingPosition)
             distanceCoveredGreen = distanceBetween(trans_field.getSFVec3f(), trans_field_Green.getSFVec3f()) 
@@ -398,8 +412,20 @@ def evaluate(individual):
             fitness += (1.5 - boxStartingPosition[0]) / (1.5 - trans_field.getSFVec3f()[0] + 0.1) * 100 
             fitness += inFOVTime/100 #For how long was the box in view
 
+            #print(robotPositions)
             print("Distance fitnesses: ", avgDistanceToCover/(avgDistanceCovered + 1) * 10, " | inFOVTime fitness: ", inFOVTime)
             print("Fitness: ", fitness)
+            
+            written = 0
+            for j in range(generationNum * populationLimit):
+                filePos = "..\\epuck_avoid_collision_Supervisor_NN\Positions" + str(j) + ".csv"
+                if not os.path.exists(filePos) and written == 0:
+                    written = 1
+                    with open(filePos, "w") as file:
+                        writer = csv.writer(file)
+                        for i in range(len(robotPositions)):
+                            writer.writerow(robotPositions[i])
+                
             return fitness,
             reset = 1
 
@@ -481,8 +507,8 @@ def main():
 #EA stuff
 generationNum = 20
 numGenes = 127
-geneLimit = 5.0
-populationLimit = 20
+geneLimit = 4.0
+populationLimit = 10
 pop = []
 totalEvaluations = generationNum * populationLimit
 
@@ -507,6 +533,10 @@ toolbox.register("mate", tools.cxTwoPoint)
 toolbox.register("mutate", mutate)
 toolbox.register("select", tools.selTournament, tournsize=4)
 
+for j in range(generationNum):
+    filePos = "..\\epuck_avoid_collision_Supervisor_NN\Positions" + str(j) + ".csv"
+    if os.path.exists(filePos):
+        os.remove(filePos)
 
 #-----------------------------------------------------------
 while supervisor.step(TIME_STEP) != -1 and done == 0:

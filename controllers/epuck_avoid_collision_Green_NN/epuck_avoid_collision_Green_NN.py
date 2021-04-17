@@ -18,7 +18,7 @@ from numpy import random
 #gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.2)
 #sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)
 
-#os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 Colour = 0
 PrintStats = 0
