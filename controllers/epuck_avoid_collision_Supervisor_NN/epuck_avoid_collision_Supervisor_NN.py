@@ -354,9 +354,14 @@ def evaluate(individual):
     inFOVTime = 0    
     
     robotPositions = [[],[],[],[],[],[]]
-    
+    failed = 0
     while reset == 0:
-    
+        
+        if (trans_field_Red.getSFVec3f()[0] < -1.5) and (trans_field_Green.getSFVec3f()[0] < -1.5) and (trans_field_Blue.getSFVec3f()[0] < -1.5):
+            failed = 1
+        if supervisor.getTime() > 10 and supervisor.getTime() < 12 and distanceBetween(trans_field_Red.getSFVec3f(), redRobotStartingPosition) + distanceBetween(trans_field_Red.getSFVec3f(), redRobotStartingPosition) + distanceBetween(trans_field_Red.getSFVec3f(), redRobotStartingPosition) < 3:
+            failed = 1
+        
         robotPositions[0].append(trans_field_Red.getSFVec3f()[0])
         robotPositions[1].append(trans_field_Red.getSFVec3f()[2])
         robotPositions[2].append(trans_field_Green.getSFVec3f()[0])
@@ -394,7 +399,7 @@ def evaluate(individual):
                 
         
         
-        if trans_field.getSFVec3f()[0] > 1.5 or supervisor.getTime() > SimulationTimeLimit:
+        if trans_field.getSFVec3f()[0] > 1.5 or supervisor.getTime() > SimulationTimeLimit or failed == 1:
             distanceToCoverGreen = distanceBetween(trans_field.getSFVec3f(), greenRobotStartingPosition)
             distanceCoveredGreen = distanceBetween(trans_field.getSFVec3f(), trans_field_Green.getSFVec3f()) 
             
@@ -407,13 +412,17 @@ def evaluate(individual):
             avgDistanceToCover = (distanceToCoverRed + distanceToCoverBlue + distanceToCoverGreen) / 3
             avgDistanceCovered = (distanceCoveredRed + distanceCoveredBlue + distanceCoveredGreen) / 3
             #How much closer the robot ended up to the box
-            fitness += avgDistanceToCover/(avgDistanceCovered + 1) * 10
+            fitness += 10 * avgDistanceCovered / avgDistanceToCover
             #How much closer the box got to its objectuive
-            fitness += (1.5 - boxStartingPosition[0]) / (1.5 - trans_field.getSFVec3f()[0] + 0.1) * 100 
+            fitness += (1.5 - trans_field.getSFVec3f()[0] + 0.1) * 200 / (1.5 - boxStartingPosition[0]) 
             fitness += inFOVTime/100 #For how long was the box in view
-
+            
+            if failed == 1:
+                fitness += 200
+            
             #print(robotPositions)
-            print("Distance fitnesses: ", avgDistanceToCover/(avgDistanceCovered + 1) * 10, " | inFOVTime fitness: ", inFOVTime)
+            print("Distance fitnesses: ", 10 * avgDistanceCovered / avgDistanceToCover, " | inFOVTime fitness: ", inFOVTime/100)
+            print("Box moving fitness: ", (1.5 - trans_field.getSFVec3f()[0] + 0.1) * 200 / (1.5 - boxStartingPosition[0]))
             print("Fitness: ", fitness)
             
             written = 0
@@ -505,10 +514,10 @@ def main():
     return pop, log, hof
 # ---------------------------------------------------------- 	
 #EA stuff
-generationNum = 20
+generationNum = 100
 numGenes = 127
 geneLimit = 4.0
-populationLimit = 10
+populationLimit = 20
 pop = []
 totalEvaluations = generationNum * populationLimit
 
@@ -575,7 +584,7 @@ while supervisor.step(TIME_STEP) != -1 and done == 0:
         ax1.set_ylabel("Fitness", color="b")
         for tl in ax1.get_yticklabels():
             tl.set_color("b")
-        ax1.set_ylim(0, best*1.2)
+        ax1.set_ylim(0, 200)
         
         lns = line1 + line2 + line3
         labs = [l.get_label() for l in lns]
