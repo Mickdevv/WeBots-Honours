@@ -6,7 +6,7 @@
 import math
 from controller import Robot, DistanceSensor, Motor, Supervisor, Node, Camera, Field, GPS
 import numpy as np
-import deap, nnfs, os, time, csv, sys
+import deap, nnfs, os, time, csv, sys, matplotlib
 import pandas as pd
 import time
 from random import seed
@@ -20,6 +20,7 @@ from deap import base
 from deap import creator
 from deap import tools
 import matplotlib.pyplot as plt
+
 
 from numpy import random
 from tensorflow import keras
@@ -47,7 +48,7 @@ numberOfRobots = 3
 
 TIME_STEP = 32
 
-SimulationTimeLimit = 30
+SimulationTimeLimit = 40
 
 done = 0
     
@@ -478,7 +479,7 @@ def main():
     return pop, log, hof
 # ---------------------------------------------------------- 	
 #EA stuff
-generationNum = 80
+generationNum = 20
 numGenes = 127
 geneLimit = 5.0
 populationLimit = 20
@@ -518,6 +519,7 @@ while supervisor.step(TIME_STEP) != -1 and done == 0:
         # extract the best fitness
         best = hof[0].fitness.values[0]
         print(best)
+        print(log)
         file = "..\\NNBest.csv"
         if os.path.exists(file):
             os.remove(file)
@@ -526,6 +528,31 @@ while supervisor.step(TIME_STEP) != -1 and done == 0:
             writer.writerow(hof[0])
         timeTaken = (time.time() - start)
         print("Time taken: ", str(datetime.timedelta(seconds=timeTaken)))
+        
+        # code for plotting
+        
+        gen = log.select("gen")
+        fit_max = log.select("max")
+        fit_min = log.select("min")
+        fit_avg = log.select("avg")
+        
+        fig, ax1 = plt.subplots()
+        
+        line1 = ax1.plot(gen, fit_max, "b-", label="max Fitness", color="r")
+        line2 = ax1.plot(gen, fit_min, "b-", label="min Fitness", color="b")
+        line3 = ax1.plot(gen, fit_avg, "b-", label="avg Fitness", color="g")
+        ax1.set_xlabel("Generations")
+        ax1.set_ylabel("Fitness", color="b")
+        for tl in ax1.get_yticklabels():
+            tl.set_color("b")
+        ax1.set_ylim(0, best*1.2)
+        
+        lns = line1 + line2 + line3
+        labs = [l.get_label() for l in lns]
+        ax1.legend(lns, labs, loc="center right")
+        
+        plt.show()
+        
     #Test the best EA from the last run
     elif(x == 1):
         with open("..\\NNBest.csv", newline='') as f:
@@ -541,7 +568,7 @@ while supervisor.step(TIME_STEP) != -1 and done == 0:
     
     print("========================= Done =========================")
     
-    supervisor.simulationSetMode(0)
+    #supervisor.simulationSetMode(0)
             #print(pop)
     
     
