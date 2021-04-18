@@ -401,7 +401,7 @@ def evaluate(individual):
         
         if trans_field.getSFVec3f()[0] > 1.5 or supervisor.getTime() > SimulationTimeLimit or failed == 1:
         
-            fitness += supervisor.getTime() * 5
+            #fitness += supervisor.getTime() * 5
         
             distanceToCoverGreen = distanceBetween(trans_field.getSFVec3f(), greenRobotStartingPosition)
             distanceCoveredGreen = distanceBetween(trans_field.getSFVec3f(), trans_field_Green.getSFVec3f()) 
@@ -426,6 +426,7 @@ def evaluate(individual):
             #print(robotPositions)
             print("Distance fitnesses: ", 10 * avgDistanceCovered / avgDistanceToCover, " | inFOVTime fitness: ", inFOVTime/100)
             print("Box moving fitness: ", (1.5 - trans_field.getSFVec3f()[0] + 0.1) * 200 / (1.5 - boxStartingPosition[0]))
+            #print("Time fitness: ", supervisor.getTime() * 5)
             print("Fitness: ", fitness)
             
             written = 0
@@ -553,7 +554,7 @@ for j in range(generationNum):
 #-----------------------------------------------------------
 while supervisor.step(TIME_STEP) != -1 and done == 0:
     
-    x=0
+    x=1
     #Run the EA and save the best NN
     if(x == 0):
         start = time.time()
