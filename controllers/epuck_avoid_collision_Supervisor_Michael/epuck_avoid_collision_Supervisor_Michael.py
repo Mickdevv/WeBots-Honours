@@ -230,13 +230,13 @@ def avg(lst):
 # ---------------------------------------------------------- 
 while supervisor.step(TIME_STEP) != -1 and Runs < len(startingPositionsPermanent):
     #supervisor.simulationReset()
-    Node.restartController(supervisor.getFromDef("Red"))
-    Node.restartController(supervisor.getFromDef("Green"))
-    Node.restartController(supervisor.getFromDef("Blue"))
+    #Node.restartController(supervisor.getFromDef("Red"))
+    #Node.restartController(supervisor.getFromDef("Green"))
+    #Node.restartController(supervisor.getFromDef("Blue"))
     if len(times) > 0:
         if times[0] == 0:
             times.remove(0)
-            runs = 0
+            Runs = 0
     if PositionsSet == 0:
         print("Starting positions:")
         print([startingPositionsPermanent[Runs][0][0], startingPositionsPermanent[Runs][0][1], startingPositionsPermanent[Runs][0][2]])
@@ -253,9 +253,9 @@ while supervisor.step(TIME_STEP) != -1 and Runs < len(startingPositionsPermanent
             trans_field_Blue.setSFVec3f([startingPositionsPermanent[Runs][2][0], startingPositionsPermanent[Runs][2][1], startingPositionsPermanent[Runs][2][2]])
        
         elif numberOfRobots == 3:
-            trans_field_Red.setSFVec3f([startingPositionsPermanent[Runs][0][0], startingPositionsPermanent[Runs][0][1], startingPositionsPermanent[Runs][0][2]])
-            trans_field_Green.setSFVec3f([startingPositionsPermanent[Runs][1][0], startingPositionsPermanent[Runs][1][1], startingPositionsPermanent[Runs][1][2]])
-            trans_field_Blue.setSFVec3f([startingPositionsPermanent[Runs][2][0], startingPositionsPermanent[Runs][2][1], startingPositionsPermanent[Runs][2][2]])
+            #trans_field_Red.setSFVec3f([startingPositionsPermanent[Runs][0][0], startingPositionsPermanent[Runs][0][1], startingPositionsPermanent[Runs][0][2]])
+            #trans_field_Green.setSFVec3f([startingPositionsPermanent[Runs][1][0], startingPositionsPermanent[Runs][1][1], startingPositionsPermanent[Runs][1][2]])
+            #trans_field_Blue.setSFVec3f([startingPositionsPermanent[Runs][2][0], startingPositionsPermanent[Runs][2][1], startingPositionsPermanent[Runs][2][2]])
             #startingPositionsPermanent.append(setRandomPositions())
         #print(startingPositionsPermanent)
         #for i in range(len(startingPositionsPermanent)):

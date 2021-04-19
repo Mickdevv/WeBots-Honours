@@ -445,8 +445,9 @@ def evaluate(individual):
            
 # ---------------------------------------------------------- 
 def generateIndividual(creator, numGenes):
+    #Create a numPy array of zeros the correct size of an individual
     individual = creator(np.zeros(numGenes))
-    #individual.append(0)
+    #Generate and assign the rangom numbers to the individual
     for i in range(numGenes):
         gene = random.uniform(-geneLimit, geneLimit)
         individual[i] = gene
@@ -459,15 +460,22 @@ def generatePopulation():
     return population,
 # ---------------------------------------------------------- 
 def mutate(individual):
+    #Iterates through every gene in the individual
     for i in range(len(individual)):
+        #Because there is also a 50% chance that the gene will be increased or decreased, 
+        #the random number is up to 200 so that the mutate probability can be used twice. 
+        #The first mutateProbability amount (30) is for incrementing the gene, and the 
+        #second is for decrementing it.
         randomNumber = random.uniform(0,200)
+        #Increment condition
         if (randomNumber < mutateProbability):
             individual[i] += mutateChange
+        #Decrement condition
         elif (randomNumber > mutateProbability and randomNumber < (mutateProbability*2)):
             individual[i] -= mutateChange
     return individual,
 # ----------------------------------------------------------   
-#Swaps the current gene with another random one
+#Swaps genes around with a random other one in the individual
 def mutateSwap(individual):	
     for i in range(len(individual)):		
         randomNum = random.randint(0,200)			
@@ -493,7 +501,6 @@ def selection(pop, returnIndividualsCount):
     return parents,
 # ---------------------------------------------------------- 
 def main():
-    # choose a population size: e.g. 200
 
     population = populationLimit
     pop = toolbox.population(n=population)
@@ -501,27 +508,22 @@ def main():
     # keep track of the single best solution found
     hof = tools.HallOfFame(1)
 
-    #create a statistics object: we can log what ever statistics 
-    #we want using this. We use the numpy Python library
-    #to calculate the stats and label them with convenient labels
     stats = tools.Statistics(lambda ind: ind.fitness.values)
     stats.register("avg", np.mean)
     stats.register("std", np.std)
     stats.register("min", np.min)
     stats.register("max", np.max)
 
-    # run the algorithm: we need to tell it what parameters to use
-    # cxpb = crossover probability; mutpb = mutation probability; ngen = number of iterations
     pop, log = algorithms.eaSimple(pop, toolbox, cxpb=0.6, mutpb=mutateProbability, ngen=generationNum,
                                    stats=stats, halloffame=hof, verbose=True)
     print(population)
     return pop, log, hof
 # ---------------------------------------------------------- 	
 #EA stuff
-generationNum = 100
+generationNum = 80
 numGenes = 127
 geneLimit = 4.0
-populationLimit = 20
+populationLimit = 10
 pop = []
 totalEvaluations = generationNum * populationLimit
 
@@ -529,17 +531,15 @@ mutateProbability = 0.3
 mutateChange = 0.2
 mutateSwapProbability = 20
 
-# define the fitness class and create an individual class
 creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
 creator.create("Individual", list, fitness=creator.FitnessMin)
-# create a toolbox
+
 toolbox = base.Toolbox()
-# USE THIS LINE IF YOU WANT TO USE THE CUSTOM INIT FUNCTION
+
 toolbox.register("individual", generateIndividual, creator.Individual, numGenes)
-#  a population consist of a list of individuals
+
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
-# register all operators we need with the toolbox
 toolbox.register("evaluate", evaluate)
 toolbox.register("mate", tools.cxTwoPoint)
 #toolbox.register("mate", OnePCX)
@@ -554,7 +554,7 @@ for j in range(generationNum):
 #-----------------------------------------------------------
 while supervisor.step(TIME_STEP) != -1 and done == 0:
     
-    x=1
+    x=0
     #Run the EA and save the best NN
     if(x == 0):
         start = time.time()

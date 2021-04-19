@@ -504,7 +504,8 @@ while robot.step(TIME_STEP) != -1:
             image.pop(len(image)-1)
             image.pop(0)
         print(ColourText, " Camera Array: ", image)
-        
+    
+    #Code for reducing noise in proximity sensors    
     psValues = []
     for i in range(8):
         psValues.append(ps[i].getValue())
