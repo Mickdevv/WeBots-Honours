@@ -48,7 +48,7 @@ numberOfRobots = 3
 
 TIME_STEP = 32
 
-SimulationTimeLimit = 40
+SimulationTimeLimit = 400
 
 done = 0
     

@@ -7,7 +7,7 @@ maximizedDockId: -1
 centralWidgetVisible: 1
 renderingMode: PLAIN
 orthographicViewHeight: 1
-textFiles: 0 "controllers/FSM_epuck_box_pushing_Supervisor/FSM_epuck_box_pushing_Supervisor.py" "controllers/FSM_epuck_box_pushing_Red/FSM_epuck_box_pushing_Red.py" "controllers/FSM_epuck_box_pushing_Green/FSM_epuck_box_pushing_Green.py" "controllers/FSM_epuck_box_pushing_Blue/FSM_epuck_box_pushing_Blue.py"
+textFiles: 0 "controllers/FSM_epuck_box_pushing_Supervisor/FSM_epuck_box_pushing_Supervisor.py"
 consoles: Console:All:All
 consoles: Console:All:All
 renderingDevicePerspectives: e-puck_Blue:camera;1;32;0;0.0570374

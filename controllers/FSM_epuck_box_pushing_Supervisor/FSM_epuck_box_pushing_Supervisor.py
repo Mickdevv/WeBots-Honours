@@ -242,9 +242,8 @@ while supervisor.step(TIME_STEP) != -1 and Runs < len(startingPositionsPermanent
         print([startingPositionsPermanent[Runs][0][0], startingPositionsPermanent[Runs][0][1], startingPositionsPermanent[Runs][0][2]])
         print([startingPositionsPermanent[Runs][1][0], startingPositionsPermanent[Runs][1][1], startingPositionsPermanent[Runs][1][2]])
         print([startingPositionsPermanent[Runs][2][0], startingPositionsPermanent[Runs][2][1], startingPositionsPermanent[Runs][2][2]])
-        #startingPositionsGenerated = GenerateStartingPositions()
-        #print(startingPositionsGenerated)
-        #print(GenerateStartingPositions())
+
+
         if numberOfRobots == 1:
             trans_field_Green.setSFVec3f([startingPositionsPermanent[Runs][1][0], startingPositionsPermanent[Runs][1][1], startingPositionsPermanent[Runs][1][2]])
             
@@ -254,9 +253,9 @@ while supervisor.step(TIME_STEP) != -1 and Runs < len(startingPositionsPermanent
        
         elif numberOfRobots == 3:
             u=1
-            #trans_field_Red.setSFVec3f([startingPositionsPermanent[Runs][0][0], startingPositionsPermanent[Runs][0][1], startingPositionsPermanent[Runs][0][2]])
-            #trans_field_Green.setSFVec3f([startingPositionsPermanent[Runs][1][0], startingPositionsPermanent[Runs][1][1], startingPositionsPermanent[Runs][1][2]])
-            #trans_field_Blue.setSFVec3f([startingPositionsPermanent[Runs][2][0], startingPositionsPermanent[Runs][2][1], startingPositionsPermanent[Runs][2][2]])
+            trans_field_Red.setSFVec3f([startingPositionsPermanent[Runs][0][0], startingPositionsPermanent[Runs][0][1], startingPositionsPermanent[Runs][0][2]])
+            trans_field_Green.setSFVec3f([startingPositionsPermanent[Runs][1][0], startingPositionsPermanent[Runs][1][1], startingPositionsPermanent[Runs][1][2]])
+            trans_field_Blue.setSFVec3f([startingPositionsPermanent[Runs][2][0], startingPositionsPermanent[Runs][2][1], startingPositionsPermanent[Runs][2][2]])
             #startingPositionsPermanent.append(setRandomPositions())
         #print(startingPositionsPermanent)
         #for i in range(len(startingPositionsPermanent)):
@@ -277,9 +276,6 @@ while supervisor.step(TIME_STEP) != -1 and Runs < len(startingPositionsPermanent
         reset = 1
                 
 
-        
-            #if trans_field.getSFVec3f()[0] > 2.5 or supervisor.getTime() > SimulationTimeLimit:
-        
     if reset == 1:   
         print("Push time: ", round(TimeToRecord - TimeToRecord2, 2))  
         times.append([TimeToRecord, TimeToRecord2])
@@ -297,9 +293,13 @@ while supervisor.step(TIME_STEP) != -1 and Runs < len(startingPositionsPermanent
         Runs +=1
         if len(times) >= 1:
             print("Runs completed: ", Runs, "/", len(startingPositionsPermanent))
-            #print(times)
+
         reset = 0
         end = time.time()
         print("Time elapsed: ", round(end - start, 2))
+        supervisor.simulationReset()
+        Node.restartController(supervisor.getFromDef("Red"))
+        Node.restartController(supervisor.getFromDef("Green"))
+        Node.restartController(supervisor.getFromDef("Blue"))
     
 
