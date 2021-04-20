@@ -7,7 +7,7 @@ WorldInfo {
 }
 Viewpoint {
   orientation -0.0936817586725505 -0.8930834827146171 -0.4400291138031078 2.77962745116403
-  position -2.30012244153684 6.3291575403222975 -5.212963937294556
+  position -2.261658250862929 6.200062765254604 -5.121796475953135
 }
 TexturedBackground {
 }
@@ -21,7 +21,7 @@ DEF Red E-puck {
   translation -1.67263 0.00090786 -1.16076
   rotation 0.0001357619758547646 0.9999998221502674 -0.0005807478967141235 0.620099
   name "e-puck_Red"
-  controller "epuck_avoid_collision_Red_NN"
+  controller "FSM_epuck_box_pushing_Red"
   camera_fieldOfView 1.6
   camera_width 13
   camera_height 1
@@ -30,7 +30,7 @@ DEF Green E-puck {
   translation 1.12319 -0.00100957 -0.360594
   rotation 0.0003726739553413409 0.999999880166958 0.00031745896195792234 -1.919525307179586
   name "e-puck_Green"
-  controller "epuck_avoid_collision_Green_NN"
+  controller "FSM_epuck_box_pushing_Green"
   camera_fieldOfView 1.6
   camera_width 13
   camera_height 1
@@ -39,7 +39,7 @@ DEF Blue E-puck {
   translation -1.92432 0.00116722 0.404108
   rotation -0.0003564829038241743 -0.9999967302100319 0.002532289316811512 -0.26178530717958637
   name "e-puck_Blue"
-  controller "epuck_avoid_collision_Blue_NN"
+  controller "FSM_epuck_box_pushing_Blue"
   camera_fieldOfView 1.6
   camera_width 13
   camera_height 1
@@ -74,7 +74,7 @@ DEF Supervisor Robot {
   physics Physics {
     density 10
   }
-  controller "epuck_avoid_collision_Supervisor_NN"
+  controller "FSM_epuck_box_pushing_Supervisor"
   supervisor TRUE
 }
 WoodenBox {
